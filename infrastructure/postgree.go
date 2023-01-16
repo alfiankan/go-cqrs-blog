@@ -2,7 +2,6 @@ package infrastructure
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -12,8 +11,8 @@ import (
 
 // NewPgConnection create db connection with pool
 // return *sqlx.DB
-func NewPgConnection(config config.ApplicationConfig) (db *sqlx.DB) {
-	db, err := sqlx.Connect(
+func NewPgConnection(config config.ApplicationConfig) (db *sqlx.DB, err error) {
+	db, err = sqlx.Connect(
 		"postgres",
 		fmt.Sprintf(
 			"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s TimeZone=Asia/Jakarta",
@@ -25,9 +24,7 @@ func NewPgConnection(config config.ApplicationConfig) (db *sqlx.DB) {
 			config.PostgreeSsl,
 		),
 	)
-	if err != nil {
-		log.Fatalln(err)
-	}
+
 	// setup db pool
 	db.SetConnMaxLifetime(time.Minute * 5)
 	db.SetMaxIdleConns(0)

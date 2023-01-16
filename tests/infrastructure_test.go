@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -9,14 +10,25 @@ import (
 )
 
 func TestPostgreeConnection(t *testing.T) {
-	t.Run("test connect to postgreesql", func(t *testing.T) {
+	t.Run("test connect to postgreesql with config", func(t *testing.T) {
 
 		config := config.Load("../.env")
-		dbConn := infrastructure.NewPgConnection(config)
-
-		// test ping db
-		err := dbConn.Ping()
+		_, err := infrastructure.NewPgConnection(config)
 
 		assert.Nil(t, err)
+	})
+}
+
+func TestESConnection(t *testing.T) {
+	t.Run("test connection to elasticsearch with config", func(t *testing.T) {
+
+		config := config.Load("../.env")
+
+		esConn, err := infrastructure.NewElasticSearchClient(config)
+
+		fmt.Println(esConn.Info())
+
+		assert.Nil(t, err)
+
 	})
 }
