@@ -12,8 +12,8 @@ func TestMain(m *testing.M) {
 	// if postgree and elasticsearch not running
 }
 
-func TestCreateArticle(t *testing.T) {
-	t.Run("save valid article must be success", func(t *testing.T) {
+func TestSaveArticleToWriterDb(t *testing.T) {
+	t.Run("save valid article to writedb postgree must be success", func(t *testing.T) {
 		faker := faker.New()
 		article := domains.Article{
 			Title:  faker.Lorem().Text(10),

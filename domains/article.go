@@ -21,15 +21,15 @@ type ArticleQuery interface {
 	Get(keyword, author string) (articles []Article, err error)
 }
 
-// ArticleWriteDbRepository is a repository interface for writing data to db
+// ArticleWriterDbRepository is a repository interface for writing data to db
 // Save to any database implemetation need
-type ArticleWriteDbRepository interface {
+type ArticleWriterDbRepository interface {
 	Save(article Article) (err error)
 }
 
-// ArticleReadDbRepository is a repository interface for read and search
+// ArticleReaderDbRepository is a repository interface for read and search
 // Read from search database
-type ArticleReadDbRepository interface {
+type ArticleReaderDbRepository interface {
 	AddIndex(article Article) (err error)
 	FindAll() (articles []Article, err error)
 	Find(keyword, author string) (articles []Article, err error)
