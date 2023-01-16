@@ -9,14 +9,37 @@ type Article struct {
 	Created string `json:"created"`
 }
 
-// ArticleCommand is interface for (C) Command from CQRS
+// ArticleCommand is a usecase interface for (C) Command from CQRS
 // Save write data to persistence db and write to search db
 type ArticleCommand interface {
-	Save(article Article) (err error)
+	Create(article Article) (err error)
 }
 
-// ArticleQuery is interface for (Q) Query from CQRS
+// ArticleQuery is a usecase interface for (Q) Query from CQRS
 // Get will find and get data from cache first if the data doesnt exist will continue to use search db
 type ArticleQuery interface {
 	Get(keyword, author string) (articles []Article, err error)
+}
+
+// ArticleWriteDbRepository is a repository interface for writing data to db
+// Save to any database implemetation need
+type ArticleWriteDbRepository interface {
+	Save(article Article) (err error)
+}
+
+// ArticleReadDbRepository is a repository interface for read and search
+// Read from search database
+type ArticleReadDbRepository interface {
+	AddIndex(article Article) (err error)
+	FindAll() (articles []Article, err error)
+	Find(keyword, author string) (articles []Article, err error)
+}
+
+// ArticleCacheRepository is a interface for rw cache
+// ReadByQueryTerm accept term parameter, term parameter notated by query param combination
+// cache.ReadByQueryTerm("keyword=lorem&author=john")
+type ArticleCacheRepository interface {
+	Write(article Article) (err error)
+	ReadAll() (articles []Article, err error)
+	ReadByQueryTerm(term string) (article []Article, err error)
 }

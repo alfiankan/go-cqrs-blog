@@ -1,0 +1,52 @@
+version: "3.9"
+
+services:
+  elasticsearch:
+    container_name: elasticsearch
+    restart: always
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
+    environment:
+      - ELASTIC_USERNAME=elastic
+      - ELASTIC_PASSWORD=elastic
+      - xpack.security.enabled=true
+    networks:
+      - cqrs-blog
+    volumes:
+      - elasticsearch-data:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+      - 9300:9300
+
+  postgreesql:
+    container_name: postgreesql
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes: 
+      - db:/var/lib/postgresql/data
+
+  redis:
+    container_name: redis
+    image: redis:6.2-alpine
+    restart: always
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    volumes: 
+      - cache:/data
+
+networks:
+  cqrs-blog:
+    driver: bridge
+
+volumes:
+  elasticsearch-data:
+    driver: local
+  db:
+    driver: local
+  cache:
+    driver: local
