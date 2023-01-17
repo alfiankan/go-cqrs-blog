@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"strings"
 
 	"github.com/alfiankan/go-cqrs-blog/domains"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/elasticsearch"
-	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/aquasecurity/esquery"
+	"github.com/elastic/go-elasticsearch/v7"
+	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
 
 type ArticleElasticSearch struct {
@@ -42,32 +44,27 @@ func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article domains.
 }
 
 // FindAll get all articles from elastic search
-func (repo *ArticleElasticSearch) FindAll(ctx context.Context) (articles []domains.Article, err error) {
+func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string) (articles []domains.Article, err error) {
 
 	// setup query
-	var buf bytes.Buffer
-	query := map[string]any{
-		"query": map[string]any{
-			"match_all": map[string]any{},
-		},
-		"sort": []any{
-			map[string]any{"created": map[string]any{
-				"order":         "desc",
-				"missing":       "_first",
-				"unmapped_type": "date",
-			}},
-		},
-	}
-	if err = json.NewEncoder(&buf).Encode(query); err != nil {
-		return
+	esBoolQuery := esquery.Bool()
+
+	if keyword != "" {
+		esBoolQuery.Boost(1.0)
+		esBoolQuery.MinimumShouldMatch(1)
+		esBoolQuery.Should(esquery.Term("title", strings.ToLower(keyword)), esquery.Term("body", strings.ToLower(keyword)))
 	}
 
-	// call es api
-	res, err := repo.es.Search(
-		repo.es.Search.WithContext(ctx),
+	if author != "" {
+		esBoolQuery.Filter(esquery.Term("author", strings.ToLower(author)))
+	}
+
+	res, err := esquery.Search().Query(esBoolQuery).Run(
+		repo.es,
 		repo.es.Search.WithIndex("articles"),
-		repo.es.Search.WithBody(&buf),
+		repo.es.Search.WithContext(ctx),
 	)
+
 	defer res.Body.Close()
 
 	// mapping to article domain
@@ -84,9 +81,5 @@ func (repo *ArticleElasticSearch) FindAll(ctx context.Context) (articles []domai
 		articles = append(articles, *source.Source)
 	}
 
-	return
-}
-
-func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string) (articles []domains.Article, err error) {
 	return
 }

@@ -36,7 +36,6 @@ type ArticleWriterDbRepository interface {
 // Read from search database
 type ArticleReaderDbRepository interface {
 	AddIndex(ctx context.Context, article Article) (err error)
-	FindAll(ctx context.Context) (articles []Article, err error)
 	Find(ctx context.Context, keyword, author string) (articles []Article, err error)
 }
 

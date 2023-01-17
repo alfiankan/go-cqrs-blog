@@ -2,7 +2,7 @@ package infrastructure
 
 import (
 	"github.com/alfiankan/go-cqrs-blog/config"
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v7"
 )
 
 func NewElasticSearchClient(config config.ApplicationConfig) (es *elasticsearch.Client, err error) {
