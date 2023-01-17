@@ -32,3 +32,13 @@ func TestESConnection(t *testing.T) {
 
 	})
 }
+
+func TestRedisConnection(t *testing.T) {
+	t.Run("test redis initialize connection", func(t *testing.T) {
+		config := config.Load("../.env")
+
+		_, err := infrastructure.NewRedisConnection(config)
+
+		assert.Nil(t, err)
+	})
+}
