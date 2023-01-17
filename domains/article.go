@@ -1,14 +1,17 @@
 package domains
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // Article base domain
 type Article struct {
-	ID      int64  `json:"id"`
-	Author  string `json:"author"`
-	Title   string `json:"title"`
-	Body    string `json:"body"`
-	Created string `json:"created"`
+	ID      int64     `json:"id"`
+	Author  string    `json:"author"`
+	Title   string    `json:"title"`
+	Body    string    `json:"body"`
+	Created time.Time `json:"created"`
 }
 
 // ArticleCommand is a usecase interface for (C) Command from CQRS
@@ -33,7 +36,7 @@ type ArticleWriterDbRepository interface {
 // Read from search database
 type ArticleReaderDbRepository interface {
 	AddIndex(ctx context.Context, article Article) (err error)
-	FindAll() (ctx context.Context, articles []Article, err error)
+	FindAll(ctx context.Context) (articles []Article, err error)
 	Find(ctx context.Context, keyword, author string) (articles []Article, err error)
 }
 

@@ -12,14 +12,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initArticleRepository() domains.ArticleWriterDbRepository {
-	config := config.Load("../.env")
-	pgConn, _ := infrastructure.NewPgConnection(config)
-	return repositories.NewArticleWriterPostgree(pgConn)
-}
-
 func TestSaveArticleToWriteDb(t *testing.T) {
 	t.Run("save valid article to writedb postgree must be success", func(t *testing.T) {
+
+		cfg := config.Load("../.env")
+		pgConn, _ := infrastructure.NewPgConnection(cfg)
+		repo := repositories.NewArticleWriterPostgree(pgConn)
+
 		faker := faker.New()
 		article := domains.Article{
 			Title:  faker.Lorem().Sentence(10),
@@ -28,7 +27,6 @@ func TestSaveArticleToWriteDb(t *testing.T) {
 		}
 
 		// save article
-		repo := initArticleRepository()
 		ctx := context.Background()
 		err := repo.Save(ctx, article)
 
