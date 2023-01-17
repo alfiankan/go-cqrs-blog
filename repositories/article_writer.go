@@ -16,8 +16,16 @@ func NewArticleWriterPostgree(db *sql.DB) domains.ArticleWriterDbRepository {
 }
 
 // Save save article to write database (postgree)
-func (repo *ArticleWriterPostgree) Save(ctx context.Context, article domains.Article) (err error) {
-	sql := "INSERT INTO articles (title, author, body) VALUES ($1, $2, $3)"
-	_, err = repo.db.ExecContext(ctx, sql, article.Title, article.Author, article.Body)
+func (repo *ArticleWriterPostgree) Save(ctx context.Context, article domains.Article) (id int64, err error) {
+	sql := "INSERT INTO articles (title, author, body, created) VALUES ($1, $2, $3, $4) RETURNING id"
+	err = repo.db.QueryRowContext(ctx, sql, article.Title, article.Author, article.Body, article.Created).Scan(&id)
+
+	return
+}
+
+func (repo *ArticleWriterPostgree) Delete(ctx context.Context, id int64) (err error) {
+	sql := "DELETE FROM articles WHERE id = $1"
+	_, err = repo.db.ExecContext(ctx, sql, id)
+
 	return
 }

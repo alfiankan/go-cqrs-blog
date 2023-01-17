@@ -46,7 +46,7 @@ func TestGetAllFromES(t *testing.T) {
 		repo := repositories.NewArticleElasticSearch(esClient)
 
 		ctx := context.Background()
-		articels, err := repo.Find(ctx, "enim", "Jovani")
+		articels, err := repo.Find(ctx, "", "")
 
 		for _, article := range articels {
 			fmt.Println(article.ID, article.Title, article.Author)

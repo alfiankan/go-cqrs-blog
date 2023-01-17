@@ -2,23 +2,28 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/domains"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/alfiankan/go-cqrs-blog/repositories"
+	"github.com/alfiankan/go-cqrs-blog/usecases"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSaveArticleToWriteDb(t *testing.T) {
-	t.Run("save valid article to writedb postgree must be success", func(t *testing.T) {
+func TestCreateNewArticle(t *testing.T) {
 
+	t.Run("create new article write to writedb and elastic search for read db must be no error", func(t *testing.T) {
 		cfg := config.Load("../.env")
 		pgConn, _ := infrastructure.NewPgConnection(cfg)
-		repo := repositories.NewArticleWriterPostgree(pgConn)
+		esConn, _ := infrastructure.NewElasticSearchClient(cfg)
+
+		writeRepo := repositories.NewArticleWriterPostgree(pgConn)
+		readRepo := repositories.NewArticleElasticSearch(esConn)
+
+		articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readRepo)
 
 		faker := faker.New()
 		article := domains.Article{
@@ -27,13 +32,9 @@ func TestSaveArticleToWriteDb(t *testing.T) {
 			Body:   faker.Lorem().Paragraph(3),
 		}
 
-		// save article
 		ctx := context.Background()
-		articleId, err := repo.Save(ctx, article)
-
-		fmt.Println("articles.id", articleId)
-
+		err := articleCommandUseCase.Create(ctx, article)
 		assert.Nil(t, err)
-
 	})
+
 }

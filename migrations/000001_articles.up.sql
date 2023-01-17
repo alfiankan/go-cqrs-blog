@@ -5,5 +5,5 @@ CREATE TABLE IF NOT EXISTS articles (
     title TEXT NOT NULL,
     author TEXT,
     body TEXT NOT NULL,
-    created TIMESTAMP DEFAULT NOW()
+    created TIMESTAMP NOT NULL
 );

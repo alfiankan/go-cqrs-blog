@@ -17,7 +17,7 @@ type Article struct {
 // ArticleCommand is a usecase interface for (C) Command from CQRS
 // Save write data to persistence db and write to search db
 type ArticleCommand interface {
-	Create(article Article) (err error)
+	Create(ctx context.Context, article Article) (err error)
 }
 
 // ArticleQuery is a usecase interface for (Q) Query from CQRS
@@ -29,7 +29,8 @@ type ArticleQuery interface {
 // ArticleWriterDbRepository is a repository interface for writing data to db
 // Save to any database implemetation need
 type ArticleWriterDbRepository interface {
-	Save(ctx context.Context, article Article) (err error)
+	Save(ctx context.Context, article Article) (id int64, err error)
+	Delete(ctx context.Context, id int64) (err error)
 }
 
 // ArticleReaderDbRepository is a repository interface for read and search
