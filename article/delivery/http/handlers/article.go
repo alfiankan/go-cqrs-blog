@@ -14,10 +14,11 @@ import (
 
 type ArticleHTTPHandler struct {
 	articleCommandUseCase domain.ArticleCommand
+	articleQueryUseCase   domain.ArticleQuery
 }
 
-func NewArticleHTTPHandler(articleCommandUseCase domain.ArticleCommand) *ArticleHTTPHandler {
-	return &ArticleHTTPHandler{articleCommandUseCase}
+func NewArticleHTTPHandler(articleCommandUseCase domain.ArticleCommand, articleQueryUseCase domain.ArticleQuery) *ArticleHTTPHandler {
+	return &ArticleHTTPHandler{articleCommandUseCase, articleQueryUseCase}
 }
 
 func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
@@ -52,6 +53,28 @@ func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 
 }
 
+func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
+
+	keyword := c.QueryParam("keyword")
+	author := c.QueryParam("author")
+
+	articles, err := handler.articleQueryUseCase.Get(c.Request().Context(), keyword, author)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
+			Message: common.InternalServerError.Error(),
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(http.StatusOK, &httpResponse.HTTPBaseResponse{
+		Message: common.HttpSuccess,
+		Data:    articles,
+	})
+
+}
+
 func (handler *ArticleHTTPHandler) HandleRoute(e *echo.Echo) {
 	e.POST("/articles", handler.CreateArticle)
+	e.GET("/articles", handler.FindArticle)
+
 }

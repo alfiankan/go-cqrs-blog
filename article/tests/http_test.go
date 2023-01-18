@@ -2,11 +2,11 @@ package tests
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	httpHandler "github.com/alfiankan/go-cqrs-blog/article/delivery/http/handlers"
 	"github.com/alfiankan/go-cqrs-blog/article/repositories"
@@ -20,23 +20,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHttpApiCreateArticle(t *testing.T) {
+func setupHandler() *httpHandler.ArticleHTTPHandler {
 	cfg := config.Load("../../.env")
-	pgConn, err := infrastructure.NewPgConnection(cfg)
-	assert.NoError(t, err)
-
-	esConn, err := infrastructure.NewElasticSearchClient(cfg)
-	assert.NoError(t, err)
+	pgConn, _ := infrastructure.NewPgConnection(cfg)
+	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
+	redisConn, _ := infrastructure.NewRedisConnection(cfg)
 
 	writeRepo := repositories.NewArticleWriterPostgree(pgConn)
 	readSearchRepo := repositories.NewArticleElasticSearch(esConn)
+	cacheRepo := repositories.NewArticleCacheRedis(redisConn, time.Minute*5)
 
 	// usecases
 	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readSearchRepo)
+	articleQueryUseCase := usecases.NewArticleQuery(readSearchRepo, cacheRepo)
 
 	// handle http request response
-	handler := httpHandler.NewArticleHTTPHandler(articleCommandUseCase)
+	return httpHandler.NewArticleHTTPHandler(articleCommandUseCase, articleQueryUseCase)
+}
 
+func TestHttpApiCreateArticle(t *testing.T) {
+	handler := setupHandler()
 	t.Run("http created", func(t *testing.T) {
 
 		fake := faker.New()
@@ -54,8 +57,6 @@ func TestHttpApiCreateArticle(t *testing.T) {
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 		c.SetPath("/articles")
-
-		fmt.Println("response json", rec.Body.String())
 
 		assert.NoError(t, handler.CreateArticle(c))
 		assert.Equal(t, http.StatusCreated, rec.Code)
@@ -79,10 +80,30 @@ func TestHttpApiCreateArticle(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetPath("/articles")
 
-		fmt.Println("response json", rec.Body.String())
-
 		assert.NoError(t, handler.CreateArticle(c))
 		assert.Equal(t, http.StatusBadRequest, rec.Code)
+	})
+
+}
+
+func TestHttpFindArticles(t *testing.T) {
+
+	handler := setupHandler()
+
+	t.Run("http success", func(t *testing.T) {
+
+		e := echo.New()
+		req, err := http.NewRequest(echo.GET, "/articles?keyword=part 2&author=Adam Geitgey", nil)
+		assert.NoError(t, err)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/articles")
+
+		assert.NoError(t, handler.FindArticle(c))
+		assert.Equal(t, http.StatusOK, rec.Code)
+
 	})
 
 }
