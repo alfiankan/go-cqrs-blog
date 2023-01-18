@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestQueryArticle(t *testing.T) {
+func TestQueryArticleAll(t *testing.T) {
 
 	cfg := config.Load("../../.env")
 	redisConn, _ := infrastructure.NewRedisConnection(cfg)
@@ -25,20 +25,27 @@ func TestQueryArticle(t *testing.T) {
 	articleQueryUseCase := usecases.NewArticleQuery(readRepo, cacheRepo)
 	ctx := context.Background()
 
-	t.Run("query all get all articles", func(t *testing.T) {
+	res, err := articleQueryUseCase.Get(ctx, "", "Adam Geitgey", 1)
 
-		res, err := articleQueryUseCase.Get(ctx, common.EmptyString, common.EmptyString)
-		assert.True(t, len(res) > 0)
-		assert.NoError(t, err)
+	assert.True(t, len(res) > 0)
+	assert.NoError(t, err)
 
-	})
+}
 
-	t.Run("query with keyword and filter get all articles", func(t *testing.T) {
+func TestQueryArticleSearchFilter(t *testing.T) {
 
-		res, err := articleQueryUseCase.Get(ctx, "part 2", "Adam Geitgey")
+	cfg := config.Load("../../.env")
+	redisConn, _ := infrastructure.NewRedisConnection(cfg)
+	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
 
-		assert.True(t, len(res) > 0)
-		assert.NoError(t, err)
+	cacheRepo := repositories.NewArticleCacheRedis(redisConn, 5*time.Minute)
+	readRepo := repositories.NewArticleElasticSearch(esConn)
 
-	})
+	articleQueryUseCase := usecases.NewArticleQuery(readRepo, cacheRepo)
+	ctx := context.Background()
+
+	res, err := articleQueryUseCase.Get(ctx, common.EmptyString, common.EmptyString, 1)
+	assert.True(t, len(res) > 0)
+	assert.NoError(t, err)
+
 }

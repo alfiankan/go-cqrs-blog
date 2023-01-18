@@ -46,8 +46,7 @@ func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article domain.A
 }
 
 // FindAll get all articles from elastic search
-func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string) (articles []domain.Article, err error) {
-
+func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string, page uint64) (articles []domain.Article, err error) {
 	// setup query
 	esBoolQuery := esquery.Bool()
 
@@ -61,7 +60,11 @@ func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author stri
 		esBoolQuery.Filter(esquery.MatchPhrase("author", strings.ToLower(author)))
 	}
 
-	res, err := esquery.Search().Query(esBoolQuery).From(0).Size(1000).Run(
+	// page every 50 articles
+	// 0 - 50
+	// 50 - 100
+	page--
+	res, err := esquery.Search().Query(esBoolQuery).From(page*50).Size(50).Run(
 		repo.es,
 		repo.es.Search.WithIndex("articles"),
 		repo.es.Search.WithContext(ctx),

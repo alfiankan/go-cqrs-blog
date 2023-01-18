@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -24,9 +23,7 @@ func TestESConnection(t *testing.T) {
 
 		cfg := config.Load("../../.env")
 
-		esConn, err := infrastructure.NewElasticSearchClient(cfg)
-
-		fmt.Println(esConn.Info())
+		_, err := infrastructure.NewElasticSearchClient(cfg)
 
 		assert.NoError(t, err)
 

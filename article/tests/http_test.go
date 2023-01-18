@@ -16,7 +16,7 @@ import (
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 
 	"github.com/jaswdr/faker"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 )
 

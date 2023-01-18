@@ -18,23 +18,25 @@ func NewArticleQuery(articleReaderRepo domain.ArticleReaderDbRepository, article
 
 }
 
-func (uc *ArticleQuery) Get(ctx context.Context, keyword, author string) (articles []domain.Article, err error) {
+func (uc *ArticleQuery) Get(ctx context.Context, keyword, author string, page uint64) (articles []domain.Article, err error) {
 
-	queryTerm := fmt.Sprintf("keyword=%s&author=%s", keyword, author)
+	queryTerm := fmt.Sprintf("keyword=%s&author=%s&page=%d", keyword, author, page)
 
 	// get from cache first
 	articles, err = uc.articleCacheRepo.ReadByQueryTerm(ctx, queryTerm)
 	if err != nil {
 
 		// get from readdb elasticsearch
-		articles, err = uc.articleReaderRepo.Find(ctx, keyword, author)
+		articles, err = uc.articleReaderRepo.Find(ctx, keyword, author, page)
 		if err != nil {
 			return
 		}
 
 		// set cache
-		if err = uc.articleCacheRepo.Write(ctx, queryTerm, articles); err != nil {
-			return
+		if len(articles) > 0 {
+			if err = uc.articleCacheRepo.Write(ctx, queryTerm, articles); err != nil {
+				return
+			}
 		}
 
 	}

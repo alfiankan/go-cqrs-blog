@@ -2,7 +2,6 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"testing"
 	"time"
 
@@ -47,11 +46,9 @@ func TestGetAllFromES(t *testing.T) {
 		repo := repositories.NewArticleElasticSearch(esClient)
 
 		ctx := context.Background()
-		articels, err := repo.Find(ctx, "", "Adam Geitgey")
+		articels, err := repo.Find(ctx, "", "Adam Geitgey", 1)
 
-		for _, article := range articels {
-			fmt.Println(article.ID, article.Title, article.Author)
-		}
+		assert.True(t, len(articels) > 0)
 
 		assert.NoError(t, err)
 

@@ -2,7 +2,6 @@ package tests
 
 import (
 	"context"
-	"fmt"
 	"testing"
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
@@ -29,9 +28,7 @@ func TestSaveArticleToWriteDb(t *testing.T) {
 
 		// save article
 		ctx := context.Background()
-		articleId, err := repo.Save(ctx, article)
-
-		fmt.Println("articles.id", articleId)
+		_, err := repo.Save(ctx, article)
 
 		assert.NoError(t, err)
 

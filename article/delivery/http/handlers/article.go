@@ -2,6 +2,7 @@ package http_delivery
 
 import (
 	"net/http"
+	"strconv"
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
 	"github.com/alfiankan/go-cqrs-blog/common"
@@ -67,8 +68,14 @@ func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
 
 	keyword := c.QueryParam("keyword")
 	author := c.QueryParam("author")
+	pageParam := c.QueryParam("page")
 
-	articles, err := handler.articleQueryUseCase.Get(c.Request().Context(), keyword, author)
+	page, err := strconv.ParseUint(pageParam, 10, 64)
+	if err != nil {
+		page = 1
+	}
+
+	articles, err := handler.articleQueryUseCase.Get(c.Request().Context(), keyword, author, page)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
 			Message: common.InternalServerError.Error(),
