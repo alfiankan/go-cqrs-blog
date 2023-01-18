@@ -12,6 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    
+    - name: copy env for test
+      run: cp .env.example .env
 
     - name: Set up Go
       uses: actions/setup-go@v3
