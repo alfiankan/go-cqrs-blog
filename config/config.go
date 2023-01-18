@@ -16,7 +16,6 @@ type ApplicationConfig struct {
 	PostgreeDb            string
 	PostgreePort          int
 	PostgreeSsl           string
-	AppEnv                string
 	ElasticSearchAdresses []string
 	ElasticSearchUsername string
 	ElasticSearchPassword string
@@ -44,7 +43,6 @@ func Load(configFile ...string) ApplicationConfig {
 		PostgreeDb:            os.Getenv("PG_DATABASE_NAME"),
 		PostgreePort:          postgreeDbPort,
 		PostgreeSsl:           os.Getenv("PG_DATABASE_SSL_MODE"),
-		AppEnv:                os.Getenv("APP_ENV"),
 		ElasticSearchAdresses: strings.Split(os.Getenv("ELASTICSEARCH_ADDRESSES"), ";"),
 		ElasticSearchUsername: os.Getenv("ELASTICSEARCH_USERNAME"),
 		ElasticSearchPassword: os.Getenv("ELASTICSEARCH_PASSWORD"),

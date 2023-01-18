@@ -87,31 +87,35 @@ func TestMain(m *testing.M) {
 
 	// PING ALL CHECK CONNECTION OK
 	for {
+		log.Println("try to ping redis ⏳")
 		redisConn, _ := infrastructure.NewRedisConnection(cfg)
 		if err := redisConn.Ping().Err(); err == nil {
 			break
 		}
 		time.Sleep(2 * time.Second)
 	}
-	fmt.Println("redis up and running")
+	log.Println("redis up and running ✅")
 
 	for {
+		log.Println("try to ping postgree ⏳")
 		pgConn, _ := infrastructure.NewPgConnection(cfg)
 		if err := pgConn.Ping(); err == nil {
 			break
 		}
 		time.Sleep(2 * time.Second)
 	}
-	fmt.Println("postgree up and running")
+	log.Println("postgree up and running ✅")
 
 	for {
+		log.Println("try to ping elasticsearch ⏳")
+
 		esConn, _ := infrastructure.NewElasticSearchClient(cfg)
 		if _, err := esConn.Ping(); err == nil {
 			break
 		}
 		time.Sleep(2 * time.Second)
 	}
-	fmt.Println("elasticsearch up and running")
+	log.Println("elasticsearch up and running ✅")
 
 	// SETUP MIGRATION AND SEED
 	if err := common.Migration("../.."); err != nil {

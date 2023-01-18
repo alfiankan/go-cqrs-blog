@@ -45,8 +45,7 @@ func Seed(wd string) error {
 			Body:   article["text"].(string),
 		}
 		if existMap[newArticle.Title] == 0 {
-			err := articleCommandUseCase.Create(ctx, newArticle)
-			fmt.Println("inserted", newArticle.Title, err)
+			articleCommandUseCase.Create(ctx, newArticle)
 			existMap[newArticle.Title] = 1
 		}
 
