@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"os"
 
+	articleRepos "github.com/alfiankan/go-cqrs-blog/article/repositories"
+	articleUseCases "github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
-	"github.com/alfiankan/go-cqrs-blog/repositories"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
-	"github.com/alfiankan/go-cqrs-blog/usecases"
 )
 
 // create es indices
@@ -19,10 +19,10 @@ func seed() error {
 	cfg := config.Load()
 	pgConn, _ := infrastructure.NewPgConnection(cfg)
 	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
-	writeRepo := repositories.NewArticleWriterPostgree(pgConn)
-	readRepo := repositories.NewArticleElasticSearch(esConn)
+	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
+	readRepo := articleRepos.NewArticleElasticSearch(esConn)
 
-	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readRepo)
+	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readRepo)
 
 	seedData, err := os.ReadFile("articles_seed.json")
 	if err != nil {

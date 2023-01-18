@@ -4,11 +4,12 @@ import (
 	"context"
 	"testing"
 
+	"github.com/alfiankan/go-cqrs-blog/article/repositories"
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
-	"github.com/alfiankan/go-cqrs-blog/repositories"
-	transport "github.com/alfiankan/go-cqrs-blog/transport/http"
-	"github.com/alfiankan/go-cqrs-blog/usecases"
+	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
+
+	"github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,7 @@ import (
 func TestCreateNewArticle(t *testing.T) {
 
 	t.Run("create new article write to writedb and elastic search for read db must be no error", func(t *testing.T) {
-		cfg := config.Load("../.env")
+		cfg := config.Load("../../.env")
 		pgConn, _ := infrastructure.NewPgConnection(cfg)
 		esConn, _ := infrastructure.NewElasticSearchClient(cfg)
 

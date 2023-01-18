@@ -11,12 +11,12 @@ import (
 
 	"github.com/alfiankan/go-cqrs-blog/config"
 
-	httpHandlers "github.com/alfiankan/go-cqrs-blog/delivery/http/handlers"
-	middlewares "github.com/alfiankan/go-cqrs-blog/delivery/http/middleware"
+	httpHandlers "github.com/alfiankan/go-cqrs-blog/article/delivery/http/handlers"
+	middlewares "github.com/alfiankan/go-cqrs-blog/common/middleware"
 
+	articleRepos "github.com/alfiankan/go-cqrs-blog/article/repositories"
+	articleUseCases "github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
-	"github.com/alfiankan/go-cqrs-blog/repositories"
-	"github.com/alfiankan/go-cqrs-blog/usecases"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis"
 	"github.com/labstack/echo"
@@ -41,17 +41,17 @@ func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *e
 	return
 }
 
-func initApplication(httpServer *echo.Echo, cfg config.ApplicationConfig) {
+func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig) {
 
 	// infrastructure
 	pgConn, esConn, _ := initInfrastructure(cfg)
 
 	// repositories
-	writeRepo := repositories.NewArticleWriterPostgree(pgConn)
-	readSearchRepo := repositories.NewArticleElasticSearch(esConn)
+	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
+	readSearchRepo := articleRepos.NewArticleElasticSearch(esConn)
 
 	// usecases
-	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readSearchRepo)
+	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readSearchRepo)
 
 	// handle http request response
 	httpHandlers.NewArticleHTTPHandler(articleCommandUseCase).HandleRoute(httpServer)
@@ -65,7 +65,7 @@ func main() {
 	e.Use(middlewares.SecureMiddleware())
 
 	cfg := config.Load()
-	initApplication(e, cfg)
+	initArticleApplication(e, cfg)
 
 	// Start server
 	go func() {

@@ -8,20 +8,20 @@ import (
 	"strings"
 	"testing"
 
+	httpHandler "github.com/alfiankan/go-cqrs-blog/article/delivery/http/handlers"
+	"github.com/alfiankan/go-cqrs-blog/article/repositories"
+	"github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/config"
-	httpHandlers "github.com/alfiankan/go-cqrs-blog/delivery/http/handlers"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
-	"github.com/alfiankan/go-cqrs-blog/repositories"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 
-	"github.com/alfiankan/go-cqrs-blog/usecases"
 	"github.com/jaswdr/faker"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHttpApiCreateArticle(t *testing.T) {
-	cfg := config.Load("../.env")
+	cfg := config.Load("../../.env")
 	pgConn, err := infrastructure.NewPgConnection(cfg)
 	assert.NoError(t, err)
 
@@ -35,7 +35,7 @@ func TestHttpApiCreateArticle(t *testing.T) {
 	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readSearchRepo)
 
 	// handle http request response
-	handler := httpHandlers.NewArticleHTTPHandler(articleCommandUseCase)
+	handler := httpHandler.NewArticleHTTPHandler(articleCommandUseCase)
 
 	t.Run("http created", func(t *testing.T) {
 
