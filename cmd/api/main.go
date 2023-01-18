@@ -54,7 +54,7 @@ func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig)
 	articleCacheRepo := articleRepos.NewArticleCacheRedis(redisConn, 5*time.Minute)
 
 	// usecases
-	articleCommandUseCase := articleUseCases.NewArticleCommand(articleWriteRepo, articleReadSearchRepo)
+	articleCommandUseCase := articleUseCases.NewArticleCommand(articleWriteRepo, articleReadSearchRepo, articleCacheRepo)
 	articleReadUseCase := articleUseCases.NewArticleQuery(articleReadSearchRepo, articleCacheRepo)
 
 	// handle http request response

@@ -2,7 +2,6 @@ package usecases
 
 import (
 	"context"
-	"log"
 	"time"
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
@@ -14,19 +13,28 @@ import (
 type ArticleCommand struct {
 	articleWriteRepo  domain.ArticleWriterDbRepository
 	articleReaderRepo domain.ArticleReaderDbRepository
+	articleCacheRepo  domain.ArticleCacheRepository
 }
 
-func NewArticleCommand(writeRepo domain.ArticleWriterDbRepository, readRepo domain.ArticleReaderDbRepository) domain.ArticleCommand {
+func NewArticleCommand(
+	writeRepo domain.ArticleWriterDbRepository,
+	readRepo domain.ArticleReaderDbRepository,
+	cacheRepo domain.ArticleCacheRepository,
+) domain.ArticleCommand {
 	return &ArticleCommand{
 		articleWriteRepo:  writeRepo,
 		articleReaderRepo: readRepo,
+		articleCacheRepo:  cacheRepo,
 	}
 }
 
 func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateArticle) (err error) {
 
 	// invalidate cache
-
+	err = uc.articleCacheRepo.InvalidateCache(ctx)
+	if err != nil {
+		return
+	}
 	// save to write db get insert id
 	newArticle := domain.Article{
 		Title:   article.Title,
@@ -42,10 +50,12 @@ func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateAr
 
 	newArticle.ID = articleID
 	// save index to readdb elasticsearch
-	if err = uc.articleReaderRepo.AddIndex(ctx, newArticle); err != nil {
-		log.Println(err)
+	if esErr := uc.articleReaderRepo.AddIndex(ctx, newArticle); esErr != nil {
 		// fallback delete article from writedb
-		err = uc.articleWriteRepo.Delete(ctx, newArticle.ID)
+		if err = uc.articleWriteRepo.Delete(ctx, newArticle.ID); err != nil {
+			return
+		}
+		err = esErr
 		return
 	}
 	return

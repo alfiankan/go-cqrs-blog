@@ -31,7 +31,7 @@ func setupHandler() *httpHandler.ArticleHTTPHandler {
 	cacheRepo := repositories.NewArticleCacheRedis(redisConn, time.Minute*5)
 
 	// usecases
-	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readSearchRepo)
+	articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readSearchRepo, cacheRepo)
 	articleQueryUseCase := usecases.NewArticleQuery(readSearchRepo, cacheRepo)
 
 	// handle http request response

@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
+	"github.com/alfiankan/go-cqrs-blog/article/repositories"
 	articleRepos "github.com/alfiankan/go-cqrs-blog/article/repositories"
 	articleUseCases "github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -19,10 +21,13 @@ func Seed(wd string) error {
 	cfg := config.Load(fmt.Sprintf("%s/.env", wd))
 	pgConn, _ := infrastructure.NewPgConnection(cfg)
 	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
+	redisConn, _ := infrastructure.NewRedisConnection(cfg)
+
 	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
 	readRepo := articleRepos.NewArticleElasticSearch(esConn)
+	cacheRepo := repositories.NewArticleCacheRedis(redisConn, 5*time.Minute)
 
-	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readRepo)
+	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readRepo, cacheRepo)
 
 	seedData, err := os.ReadFile(fmt.Sprintf("%s/articles_seed.json", wd))
 	if err != nil {

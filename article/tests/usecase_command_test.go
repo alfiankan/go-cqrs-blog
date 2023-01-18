@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/alfiankan/go-cqrs-blog/article/repositories"
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -20,11 +21,13 @@ func TestCreateNewArticle(t *testing.T) {
 		cfg := config.Load("../../.env")
 		pgConn, _ := infrastructure.NewPgConnection(cfg)
 		esConn, _ := infrastructure.NewElasticSearchClient(cfg)
+		redisConn, _ := infrastructure.NewRedisConnection(cfg)
 
 		writeRepo := repositories.NewArticleWriterPostgree(pgConn)
 		readRepo := repositories.NewArticleElasticSearch(esConn)
+		cacheRepo := repositories.NewArticleCacheRedis(redisConn, 5*time.Minute)
 
-		articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readRepo)
+		articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readRepo, cacheRepo)
 
 		faker := faker.New()
 		article := transport.CreateArticle{
