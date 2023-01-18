@@ -10,7 +10,7 @@ seed:
 test:
 	go test ./article/tests/... -v
 
-docs:
+swagger:
 	swag init -g cmd/api/main.go
 
 docker:

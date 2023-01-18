@@ -18,7 +18,7 @@ info:
   license:
     name: Apache 2.0
   title: go-cqrs-blog-api
-  version: "3.0"
+  version: "1.0"
 paths:
   /articles:
     get:

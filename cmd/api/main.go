@@ -63,7 +63,7 @@ func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig)
 }
 
 // @title go-cqrs-blog-api
-// @version 3.0
+// @version 1.0
 // @description Go implemented cqrs.
 // @contact.name alfiankan
 // @contact.url https://github.com/alfiankan
