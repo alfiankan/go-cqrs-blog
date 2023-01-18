@@ -91,7 +91,7 @@ go test ./article/tests/... -run TestHttpApiCreateArticle  -v
 4. run infras container by running following command :
 
     ```bash
-    docker-compose up go-cqrs-postgree go-cqrs-elasticsearch go-cqrs-redis -d
+    docker-compose up -d go-cqrs-postgree go-cqrs-elasticsearch go-cqrs-redis
     ```
 5. migrate database by using command :
 
@@ -177,45 +177,46 @@ hey -n 1000 -c 10 'http://localhost:3000/articles?keyword=machine&author=Adam%20
 
 ```bash
 Summary:
-  Total:        3.7906 secs
-  Slowest:      0.0696 secs
-  Fastest:      0.0194 secs
-  Average:      0.0378 secs
-  Requests/sec: 263.8096
-
+  Total:        0.8775 secs
+  Slowest:      0.0679 secs
+  Fastest:      0.0048 secs
+  Average:      0.0085 secs
+  Requests/sec: 1139.6366
+  
 
 Response time histogram:
-  0.019 [1]     |
-  0.024 [11]    |■
-  0.029 [99]    |■■■■■■■■■■
-  0.034 [180]   |■■■■■■■■■■■■■■■■■■■
-  0.039 [378]   |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
-  0.044 [188]   |■■■■■■■■■■■■■■■■■■■■
-  0.050 [78]    |■■■■■■■■
-  0.055 [44]    |■■■■■
-  0.060 [8]     |■
-  0.065 [4]     |
-  0.070 [9]     |■
+  0.005 [1]     |
+  0.011 [930]   |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.017 [56]    |■■
+  0.024 [3]     |
+  0.030 [0]     |
+  0.036 [0]     |
+  0.043 [0]     |
+  0.049 [0]     |
+  0.055 [1]     |
+  0.062 [3]     |
+  0.068 [6]     |
 
 
 Latency distribution:
-  10% in 0.0289 secs
-  25% in 0.0336 secs
-  50% in 0.0372 secs
-  75% in 0.0410 secs
-  90% in 0.0468 secs
-  95% in 0.0510 secs
-  99% in 0.0632 secs
+  10% in 0.0061 secs
+  25% in 0.0069 secs
+  50% in 0.0076 secs
+  75% in 0.0087 secs
+  90% in 0.0105 secs
+  95% in 0.0118 secs
+  99% in 0.0547 secs
 
 Details (average, fastest, slowest):
-  DNS+dialup:   0.0001 secs, 0.0194 secs, 0.0696 secs
-  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0021 secs
-  req write:    0.0000 secs, 0.0000 secs, 0.0014 secs
-  resp wait:    0.0352 secs, 0.0165 secs, 0.0653 secs
-  resp read:    0.0025 secs, 0.0010 secs, 0.0102 secs
+  DNS+dialup:   0.0000 secs, 0.0048 secs, 0.0679 secs
+  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0004 secs
+  req write:    0.0000 secs, 0.0000 secs, 0.0016 secs
+  resp wait:    0.0065 secs, 0.0035 secs, 0.0643 secs
+  resp read:    0.0020 secs, 0.0009 secs, 0.0084 secs
 
 Status code distribution:
   [200] 1000 responses
+
 ```
 
 
