@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"context"
@@ -14,9 +14,9 @@ import (
 )
 
 // create es indices
-func seed() error {
+func Seed(wd string) error {
 
-	cfg := config.Load()
+	cfg := config.Load(fmt.Sprintf("%s/.env", wd))
 	pgConn, _ := infrastructure.NewPgConnection(cfg)
 	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
 	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
@@ -24,7 +24,7 @@ func seed() error {
 
 	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readRepo)
 
-	seedData, err := os.ReadFile("articles_seed.json")
+	seedData, err := os.ReadFile(fmt.Sprintf("%s/articles_seed.json", wd))
 	if err != nil {
 		return err
 	}
@@ -34,7 +34,6 @@ func seed() error {
 	if err := json.Unmarshal(seedData, &articles); err != nil {
 		return err
 	}
-
 	ctx := context.Background()
 
 	existMap := map[string]int{}
@@ -46,7 +45,8 @@ func seed() error {
 			Body:   article["text"].(string),
 		}
 		if existMap[newArticle.Title] == 0 {
-			articleCommandUseCase.Create(ctx, newArticle)
+			err := articleCommandUseCase.Create(ctx, newArticle)
+			fmt.Println("inserted", newArticle.Title, err)
 			existMap[newArticle.Title] = 1
 		}
 

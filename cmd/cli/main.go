@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	_ "github.com/golang-migrate/migrate/v4/source/file"
-	_ "github.com/lib/pq"
+	"github.com/alfiankan/go-cqrs-blog/common"
 )
 
 // commands hold clis command and hook function
-var commands = map[string]func() error{
-	"migrate": migration,
-	"seed":    seed,
+var commands = map[string]func(wd string) error{
+	"migrate": common.Migration,
+	"seed":    common.Seed,
 }
 
 func main() {
@@ -21,7 +20,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	if err := commands[os.Args[1]](); err != nil {
+	if err := commands[os.Args[1]]("."); err != nil {
 		fmt.Println(err)
 	}
 

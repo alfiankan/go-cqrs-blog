@@ -2,6 +2,7 @@ package usecases
 
 import (
 	"context"
+	"log"
 	"time"
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
@@ -23,8 +24,10 @@ func NewArticleCommand(writeRepo domain.ArticleWriterDbRepository, readRepo doma
 }
 
 func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateArticle) (err error) {
-	// save to write db get insert id
 
+	// invalidate cache
+
+	// save to write db get insert id
 	newArticle := domain.Article{
 		Title:   article.Title,
 		Author:  article.Author,
@@ -40,6 +43,7 @@ func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateAr
 	newArticle.ID = articleID
 	// save index to readdb elasticsearch
 	if err = uc.articleReaderRepo.AddIndex(ctx, newArticle); err != nil {
+		log.Println(err)
 		// fallback delete article from writedb
 		err = uc.articleWriteRepo.Delete(ctx, newArticle.ID)
 		return

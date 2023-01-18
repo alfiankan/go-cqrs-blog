@@ -4,14 +4,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
+	"strings"
 	"testing"
 	"time"
 
+	"github.com/alfiankan/go-cqrs-blog/common"
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
-	"github.com/alfiankan/go-cqrs-blog/migrations"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
@@ -34,117 +34,92 @@ func TestMain(m *testing.M) {
 	}
 
 	// POSTGREESQL SETUP
-	postgreePorts := []docker.PortBinding{{HostPort: "5432"}}
+	postgreePorts := []docker.PortBinding{{HostPort: strconv.Itoa(cfg.PostgreePort)}}
 	pool.RemoveContainerByName("go-cqrs-postgree")
 
-	_, err = pool.RunWithOptions(&dockertest.RunOptions{
+	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
 		Name:         "go-cqrs-postgree",
 		Repository:   "postgres",
 		Tag:          "14.1-alpine",
 		PortBindings: map[docker.Port][]docker.PortBinding{"5432/tcp": postgreePorts},
 		Env: []string{
-			"POSTGRES_USER=postgres",
-			"POSTGRES_PASSWORD=postgres",
+			fmt.Sprintf("POSTGRES_USER=%s", cfg.PostgreeUser),
+			fmt.Sprintf("POSTGRES_PASSWORD=%s", cfg.PostgreePass),
 			"listen_addresses = '*'",
-		}})
-
-	if err != nil {
+		}}); err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
-	// ping postgree before continue
-	for {
-		pgConn, err := infrastructure.NewPgConnection(cfg)
-		if err == nil {
-			break
-		}
-		if err := pgConn.Ping(); err == nil {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-	fmt.Println("postgree up")
-
 	// ELASTICSEARCH SETUP
-	elasticsearchPorts := []docker.PortBinding{{HostPort: "9200"}}
+	parsedEnv := strings.Split(cfg.ElasticSearchAdresses[0], ":")
+	elasticsearchPorts := []docker.PortBinding{{HostPort: parsedEnv[len(parsedEnv)-1]}}
 	pool.RemoveContainerByName("go-cqrs-elasticsearch")
 
-	_, err = pool.RunWithOptions(&dockertest.RunOptions{
+	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
 		Name:         "go-cqrs-elasticsearch",
 		Repository:   "docker.elastic.co/elasticsearch/elasticsearch",
 		Tag:          "8.6.0",
 		PortBindings: map[docker.Port][]docker.PortBinding{"9200/tcp": elasticsearchPorts},
 		CapAdd:       []string{"IPC_LOCK"},
 		Env: []string{
-			"ELASTIC_USERNAME=elastic",
-			"ELASTIC_PASSWORD=elastic",
+			fmt.Sprintf("ELASTIC_USERNAME=%s", cfg.ElasticSearchUsername),
+			fmt.Sprintf("ELASTIC_PASSWORD=%s", cfg.ElasticSearchPassword),
 			"xpack.security.enabled=true",
 			"discovery.type=single-node",
-		}})
-
-	if err != nil {
+		}}); err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
-	// ping wlasticsearch before continue
-	for {
-		esConn, err := infrastructure.NewElasticSearchClient(cfg)
-		if err == nil {
-			break
-		}
-		if _, err := esConn.Cat.Health(); err == nil {
-			break
-		}
-		time.Sleep(2 * time.Second)
-	}
-	fmt.Println("elasticsearch up")
-
 	// REDIS SETUP
-	redisPorts := []docker.PortBinding{{HostPort: "6379"}}
+	parsedEnv = strings.Split(cfg.RedisHost, ":")
+	redisPorts := []docker.PortBinding{{HostPort: parsedEnv[len(parsedEnv)-1]}}
 	pool.RemoveContainerByName("go-cqrs-redis")
 
-	_, err = pool.RunWithOptions(&dockertest.RunOptions{
+	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
 		Name:         "go-cqrs-redis",
 		Repository:   "redis",
 		Tag:          "6.2-alpine",
 		PortBindings: map[docker.Port][]docker.PortBinding{"6379/tcp": redisPorts},
-		Cmd:          []string{"--requirepass", "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81"},
-	})
-
-	if err != nil {
+		Cmd:          []string{"--requirepass", cfg.RedisPass},
+	}); err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
-	// ping redis before continue
+	// PING ALL CHECK CONNECTION OK
 	for {
-		redisConn, err := infrastructure.NewRedisConnection(cfg)
-		if err == nil {
-			break
-		}
+		redisConn, _ := infrastructure.NewRedisConnection(cfg)
 		if err := redisConn.Ping().Err(); err == nil {
 			break
 		}
 		time.Sleep(2 * time.Second)
 	}
-	fmt.Println("redis up")
+	fmt.Println("redis up and running")
+
+	for {
+		pgConn, _ := infrastructure.NewPgConnection(cfg)
+		if err := pgConn.Ping(); err == nil {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+	fmt.Println("postgree up and running")
+
+	for {
+		esConn, _ := infrastructure.NewElasticSearchClient(cfg)
+		if _, err := esConn.Ping(); err == nil {
+			break
+		}
+		time.Sleep(2 * time.Second)
+	}
+	fmt.Println("elasticsearch up and running")
 
 	// SETUP MIGRATION AND SEED
-	pgConn, err := infrastructure.NewPgConnection(cfg)
-	driver, err := postgres.WithInstance(pgConn, &postgres.Config{})
-	if err != nil {
+	if err := common.Migration("../.."); err != nil {
 		log.Fatal(err)
 	}
+	time.Sleep(10 * time.Second)
 
-	migrator, err := migrate.NewWithDatabaseInstance(
-		"file://../../migrations",
-		"postgres",
-		driver,
-	)
-	if err := migrator.Up(); err != nil {
-		log.Fatal("migration failed")
-	}
-
-	if err := migrations.Seed(); err != nil {
+	if err := common.Seed("../.."); err != nil {
 		log.Fatal(err)
 	}
 

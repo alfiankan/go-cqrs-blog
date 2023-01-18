@@ -1,4 +1,4 @@
-package main
+package common
 
 import (
 	"errors"
@@ -9,19 +9,21 @@ import (
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 )
 
 // migration migrate to database
-func migration() error {
-	config := config.Load()
-	pgConn, err := infrastructure.NewPgConnection(config)
+func Migration(wd string) error {
+	cfg := config.Load(fmt.Sprintf("%s/.env", wd))
+	pgConn, err := infrastructure.NewPgConnection(cfg)
 	driver, err := postgres.WithInstance(pgConn, &postgres.Config{})
 	if err != nil {
 		return errors.New("CANNOT CONNECT TO DATABASE")
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://./migrations",
+		fmt.Sprintf("file://%s/migrations", wd),
 		"postgres",
 		driver,
 	)

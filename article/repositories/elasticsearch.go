@@ -9,7 +9,6 @@ import (
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
 
-	"github.com/alfiankan/go-cqrs-blog/common"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/response"
 	"github.com/aquasecurity/esquery"
 	"github.com/elastic/go-elasticsearch/v7"
@@ -52,13 +51,13 @@ func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author stri
 	// setup query
 	esBoolQuery := esquery.Bool()
 
-	if keyword != common.EmptyString {
+	if keyword != "" {
 		esBoolQuery.Boost(2.0)
 		esBoolQuery.MinimumShouldMatch(1)
 		esBoolQuery.Should(esquery.MatchPhrase("title", keyword), esquery.MatchPhrase("body", keyword))
 	}
 
-	if author != common.EmptyString {
+	if author != "" {
 		esBoolQuery.Filter(esquery.MatchPhrase("author", strings.ToLower(author)))
 	}
 

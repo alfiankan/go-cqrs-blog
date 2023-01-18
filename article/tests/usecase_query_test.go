@@ -7,7 +7,6 @@ import (
 
 	"github.com/alfiankan/go-cqrs-blog/article/repositories"
 	"github.com/alfiankan/go-cqrs-blog/article/usecases"
-	"github.com/alfiankan/go-cqrs-blog/common"
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/stretchr/testify/assert"
@@ -44,7 +43,7 @@ func TestQueryArticleSearchFilter(t *testing.T) {
 	articleQueryUseCase := usecases.NewArticleQuery(readRepo, cacheRepo)
 	ctx := context.Background()
 
-	res, err := articleQueryUseCase.Get(ctx, common.EmptyString, common.EmptyString, 1)
+	res, err := articleQueryUseCase.Get(ctx, "", "", 1)
 	assert.True(t, len(res) > 0)
 	assert.NoError(t, err)
 
