@@ -44,17 +44,19 @@ func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *e
 func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig) {
 
 	// infrastructure
-	pgConn, esConn, _ := initInfrastructure(cfg)
+	pgConn, esConn, redisConn := initInfrastructure(cfg)
 
 	// repositories
-	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
-	readSearchRepo := articleRepos.NewArticleElasticSearch(esConn)
+	articleWriteRepo := articleRepos.NewArticleWriterPostgree(pgConn)
+	articleReadSearchRepo := articleRepos.NewArticleElasticSearch(esConn)
+	articleCacheRepo := articleRepos.NewArticleCacheRedis(redisConn, 5*time.Minute)
 
 	// usecases
-	articleCommandUseCase := articleUseCases.NewArticleCommand(writeRepo, readSearchRepo)
+	articleCommandUseCase := articleUseCases.NewArticleCommand(articleWriteRepo, articleReadSearchRepo)
+	articleReadUseCase := articleUseCases.NewArticleQuery(articleReadSearchRepo, articleCacheRepo)
 
 	// handle http request response
-	httpHandlers.NewArticleHTTPHandler(articleCommandUseCase).HandleRoute(httpServer)
+	httpHandlers.NewArticleHTTPHandler(articleCommandUseCase, articleReadUseCase).HandleRoute(httpServer)
 
 }
 
