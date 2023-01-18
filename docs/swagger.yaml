@@ -1,4 +1,14 @@
 basePath: /
+definitions:
+  transport.CreateArticle:
+    properties:
+      author:
+        type: string
+      body:
+        type: string
+      title:
+        type: string
+    type: object
 info:
   contact:
     email: alfiankan19@gmail.com
@@ -25,12 +35,36 @@ paths:
         in: query
         name: author
         type: string
+      - description: page result do tou large amount data, page from 1..n every page
+          hold 50 articles, default page is 1
+        in: query
+        name: page
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
       summary: FindArticle find/get articles
+      tags:
+      - articles
+    post:
+      consumes:
+      - application/json
+      description: create new article
+      parameters:
+      - description: Article detail
+        in: body
+        name: article
+        required: true
+        schema:
+          $ref: '#/definitions/transport.CreateArticle'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: CreateArticle add/create articles
       tags:
       - articles
 swagger: "2.0"

@@ -5,3 +5,7 @@ const (
 	HttpSuccess        = "Success"
 	EmptyString        = ""
 )
+
+var (
+	EmptyResponseData = map[string]any{}
+)

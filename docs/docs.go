@@ -48,12 +48,63 @@ const docTemplate = `{
                         "description": "filter by author",
                         "name": "author",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page result do tou large amount data, page from 1..n every page hold 50 articles, default page is 1",
+                        "name": "page",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK"
                     }
+                }
+            },
+            "post": {
+                "description": "create new article",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "CreateArticle add/create articles",
+                "parameters": [
+                    {
+                        "description": "Article detail",
+                        "name": "article",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/transport.CreateArticle"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "transport.CreateArticle": {
+            "type": "object",
+            "properties": {
+                "author": {
+                    "type": "string"
+                },
+                "body": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
                 }
             }
         }

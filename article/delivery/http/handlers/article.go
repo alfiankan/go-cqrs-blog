@@ -8,7 +8,6 @@ import (
 	"github.com/alfiankan/go-cqrs-blog/common"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 	httpResponse "github.com/alfiankan/go-cqrs-blog/transport/response"
-
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
 )
@@ -22,13 +21,22 @@ func NewArticleHTTPHandler(articleCommandUseCase domain.ArticleCommand, articleQ
 	return &ArticleHTTPHandler{articleCommandUseCase, articleQueryUseCase}
 }
 
+// CreateArticle godoc
+// @Summary CreateArticle add/create articles
+// @Description create new article
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Param article body transport.CreateArticle true "Article detail"
+// @Success 200
+// @Router /articles [post]
 func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 
 	var reqBody transport.CreateArticle
 	if err := c.Bind(&reqBody); err != nil {
 		return c.JSON(http.StatusUnprocessableEntity, &httpResponse.HTTPBaseResponse{
 			Message: common.BadRequestError.Error(),
-			Data:    nil,
+			Data:    common.EmptyResponseData,
 		})
 	}
 
@@ -43,13 +51,13 @@ func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 	if err := handler.articleCommandUseCase.Create(c.Request().Context(), reqBody); err != nil {
 		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
 			Message: common.InternalServerError.Error(),
-			Data:    nil,
+			Data:    common.EmptyResponseData,
 		})
 	}
 
 	return c.JSON(http.StatusCreated, &httpResponse.HTTPBaseResponse{
 		Message: common.HttpSuccessCreated,
-		Data:    nil,
+		Data:    common.EmptyResponseData,
 	})
 
 }
@@ -62,6 +70,7 @@ func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 // @Produce json
 // @Param keyword query string false "search by keyword on title or body"
 // @Param author query string false "filter by author"
+// @Param page query string false "page result do tou large amount data, page from 1..n every page hold 50 articles, default page is 1"
 // @Success 200
 // @Router /articles [get]
 func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
@@ -79,7 +88,7 @@ func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
 			Message: common.InternalServerError.Error(),
-			Data:    nil,
+			Data:    common.EmptyResponseData,
 		})
 	}
 
@@ -93,5 +102,4 @@ func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
 func (handler *ArticleHTTPHandler) HandleRoute(e *echo.Echo) {
 	e.POST("/articles", handler.CreateArticle)
 	e.GET("/articles", handler.FindArticle)
-
 }
