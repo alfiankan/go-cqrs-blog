@@ -46,7 +46,7 @@ type ArticleReaderDbRepository interface {
 // ReadByQueryTerm accept term parameter, term parameter notated by query param combination
 // cache.ReadByQueryTerm("keyword=lorem&author=john")
 type ArticleCacheRepository interface {
-	Write(ctx context.Context, article Article) (err error)
-	ReadAll(ctx context.Context) (articles []Article, err error)
-	ReadByQueryTerm(ctx context.Context, term string) (article []Article, err error)
+	Write(ctx context.Context, term string, articles []Article) (err error)
+	ReadByQueryTerm(ctx context.Context, term string) (articles []Article, err error)
+	InvalidateCache(ctx context.Context) (err error)
 }
