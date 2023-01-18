@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
-	"github.com/alfiankan/go-cqrs-blog/domains"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/alfiankan/go-cqrs-blog/repositories"
+	transport "github.com/alfiankan/go-cqrs-blog/transport/http"
 	"github.com/alfiankan/go-cqrs-blog/usecases"
 	"github.com/jaswdr/faker"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestCreateNewArticle(t *testing.T) {
 		articleCommandUseCase := usecases.NewArticleCommand(writeRepo, readRepo)
 
 		faker := faker.New()
-		article := domains.Article{
+		article := transport.CreateArticle{
 			Title:  faker.Lorem().Sentence(10),
 			Author: faker.Person().FirstName(),
 			Body:   faker.Lorem().Paragraph(3),
@@ -34,7 +34,7 @@ func TestCreateNewArticle(t *testing.T) {
 
 		ctx := context.Background()
 		err := articleCommandUseCase.Create(ctx, article)
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 
 }

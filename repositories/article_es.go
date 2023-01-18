@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/alfiankan/go-cqrs-blog/domains"
-	transport "github.com/alfiankan/go-cqrs-blog/transport/elasticsearch"
+	transport "github.com/alfiankan/go-cqrs-blog/transport/response"
 	"github.com/aquasecurity/esquery"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/elastic/go-elasticsearch/v7/esapi"
@@ -50,16 +50,16 @@ func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author stri
 	esBoolQuery := esquery.Bool()
 
 	if keyword != "" {
-		esBoolQuery.Boost(1.0)
+		esBoolQuery.Boost(2.0)
 		esBoolQuery.MinimumShouldMatch(1)
-		esBoolQuery.Should(esquery.Term("title", strings.ToLower(keyword)), esquery.Term("body", strings.ToLower(keyword)))
+		esBoolQuery.Should(esquery.MatchPhrase("title", keyword), esquery.MatchPhrase("body", keyword))
 	}
 
 	if author != "" {
-		esBoolQuery.Filter(esquery.Term("author", strings.ToLower(author)))
+		esBoolQuery.Filter(esquery.MatchPhrase("author", strings.ToLower(author)))
 	}
 
-	res, err := esquery.Search().Query(esBoolQuery).Run(
+	res, err := esquery.Search().Query(esBoolQuery).From(0).Size(1000).Run(
 		repo.es,
 		repo.es.Search.WithIndex("articles"),
 		repo.es.Search.WithContext(ctx),

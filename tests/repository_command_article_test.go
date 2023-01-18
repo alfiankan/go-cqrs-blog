@@ -33,7 +33,7 @@ func TestSaveArticleToWriteDb(t *testing.T) {
 
 		fmt.Println("articles.id", articleId)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 	})
 }

@@ -3,3 +3,6 @@ migrate:
 
 migrate-down:
 	go run ./cmd/cli/... migrate down
+
+seed:
+	go run ./cmd/cli/... seed

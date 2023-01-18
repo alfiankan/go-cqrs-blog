@@ -33,7 +33,7 @@ func TestCreateArticleIndex(t *testing.T) {
 		ctx := context.Background()
 		err := repo.AddIndex(ctx, article)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 	})
 }
@@ -46,13 +46,13 @@ func TestGetAllFromES(t *testing.T) {
 		repo := repositories.NewArticleElasticSearch(esClient)
 
 		ctx := context.Background()
-		articels, err := repo.Find(ctx, "", "")
+		articels, err := repo.Find(ctx, "", "Adam Geitgey")
 
 		for _, article := range articels {
 			fmt.Println(article.ID, article.Title, article.Author)
 		}
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 	})
 }

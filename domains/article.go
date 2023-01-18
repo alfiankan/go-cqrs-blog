@@ -3,6 +3,8 @@ package domains
 import (
 	"context"
 	"time"
+
+	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 )
 
 // Article base domain
@@ -17,7 +19,7 @@ type Article struct {
 // ArticleCommand is a usecase interface for (C) Command from CQRS
 // Save write data to persistence db and write to search db
 type ArticleCommand interface {
-	Create(ctx context.Context, article Article) (err error)
+	Create(ctx context.Context, article transport.CreateArticle) (err error)
 }
 
 // ArticleQuery is a usecase interface for (Q) Query from CQRS

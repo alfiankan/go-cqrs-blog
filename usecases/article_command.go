@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/alfiankan/go-cqrs-blog/domains"
+	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 )
 
 type ArticleCommand struct {
@@ -19,20 +20,26 @@ func NewArticleCommand(writeRepo domains.ArticleWriterDbRepository, readRepo dom
 	}
 }
 
-func (uc *ArticleCommand) Create(ctx context.Context, article domains.Article) (err error) {
+func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateArticle) (err error) {
 	// save to write db get insert id
-	article.Created = time.Now()
 
-	articleID, err := uc.articleWriteRepo.Save(ctx, article)
+	newArticle := domains.Article{
+		Title:   article.Title,
+		Author:  article.Author,
+		Body:    article.Body,
+		Created: time.Now(),
+	}
+
+	articleID, err := uc.articleWriteRepo.Save(ctx, newArticle)
 	if err != nil {
 		return
 	}
 
-	article.ID = articleID
+	newArticle.ID = articleID
 	// save index to readdb elasticsearch
-	if err = uc.articleReaderRepo.AddIndex(ctx, article); err != nil {
+	if err = uc.articleReaderRepo.AddIndex(ctx, newArticle); err != nil {
 		// fallback delete article from writedb
-		err = uc.articleWriteRepo.Delete(ctx, article.ID)
+		err = uc.articleWriteRepo.Delete(ctx, newArticle.ID)
 		return
 	}
 	return

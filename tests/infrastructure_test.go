@@ -15,7 +15,7 @@ func TestPostgreeConnection(t *testing.T) {
 		cfg := config.Load("../.env")
 		_, err := infrastructure.NewPgConnection(cfg)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 }
 
@@ -28,7 +28,7 @@ func TestESConnection(t *testing.T) {
 
 		fmt.Println(esConn.Info())
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 
 	})
 }
@@ -39,6 +39,6 @@ func TestRedisConnection(t *testing.T) {
 
 		_, err := infrastructure.NewRedisConnection(cfg)
 
-		assert.Nil(t, err)
+		assert.NoError(t, err)
 	})
 }

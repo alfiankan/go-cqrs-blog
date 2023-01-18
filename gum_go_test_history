@@ -1,1 +1,1 @@
-go test ./tests/repository_query_article_test.go -run TestGetAllFromES -v 
+go test ./tests/article_http_test.go -run TestHttpApiCreateArticle  

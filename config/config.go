@@ -22,6 +22,7 @@ type ApplicationConfig struct {
 	ElasticSearchPassword string
 	RedisHost             string
 	RedisPass             string
+	HTTPApiPort           string
 }
 
 // Load load config from env
@@ -49,6 +50,7 @@ func Load(configFile ...string) ApplicationConfig {
 		ElasticSearchPassword: os.Getenv("ELASTICSEARCH_PASSWORD"),
 		RedisHost:             os.Getenv("REDIS_HOST"),
 		RedisPass:             os.Getenv("REDIS_PASSWORD"),
+		HTTPApiPort:           os.Getenv("HTTP_API_PORT"),
 	}
 
 }

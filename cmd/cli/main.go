@@ -11,7 +11,7 @@ import (
 // commands hold clis command and hook function
 var commands = map[string]func() error{
 	"migrate": migration,
-	"es":      createESIndex,
+	"seed":    seed,
 }
 
 func main() {
