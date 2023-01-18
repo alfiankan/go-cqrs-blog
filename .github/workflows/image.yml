@@ -1,0 +1,44 @@
+name: Release image
+on:
+  release:
+    types: [released]
+
+jobs:
+  tests:
+    name: Testing
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out the repo
+      uses: actions/checkout@v3
+    - name: integration testing
+      run: go test ./article/tests/... -v
+
+  build_push:
+    name: Build & Push Image
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: USERNAME
+          password: ${{ secrets.GITUB_PAT }}
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: ghcr.io/alfiankan/${{ github.event.repository.name }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
