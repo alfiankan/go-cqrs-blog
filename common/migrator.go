@@ -3,6 +3,7 @@ package common
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/alfiankan/go-cqrs-blog/config"
@@ -33,7 +34,7 @@ func Migration(wd string) error {
 			if err := m.Down(); err != nil {
 				return err
 			}
-			fmt.Println("migration down success")
+			log.Println("migration down success")
 
 			return nil
 		}
@@ -42,7 +43,7 @@ func Migration(wd string) error {
 	if err := m.Up(); err != nil {
 		return err
 	}
-	fmt.Println("migration up success")
+	log.Println("migration up success")
 
 	return nil
 }

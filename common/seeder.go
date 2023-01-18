@@ -3,7 +3,9 @@ package common
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -22,6 +24,11 @@ func Seed(wd string) error {
 	pgConn, _ := infrastructure.NewPgConnection(cfg)
 	esConn, _ := infrastructure.NewElasticSearchClient(cfg)
 	redisConn, _ := infrastructure.NewRedisConnection(cfg)
+
+	// precheck es is alive
+	if _, err := esConn.Ping(); err != nil {
+		return errors.New("elastic search unreachable")
+	}
 
 	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)
 	readRepo := articleRepos.NewArticleElasticSearch(esConn)
@@ -56,7 +63,7 @@ func Seed(wd string) error {
 
 	}
 
-	fmt.Println("seed success")
+	log.Println("seed success")
 
 	return nil
 }
