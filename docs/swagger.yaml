@@ -1,0 +1,36 @@
+basePath: /
+info:
+  contact:
+    email: alfiankan19@gmail.com
+    name: alfiankan
+    url: https://github.com/alfiankan
+  description: Go implemented cqrs.
+  license:
+    name: Apache 2.0
+  title: go-cqrs-blog-api
+  version: "3.0"
+paths:
+  /articles:
+    get:
+      consumes:
+      - application/json
+      description: Find articles, provided query param keyword and filter by author,
+        data ordered by created time DESC
+      parameters:
+      - description: search by keyword on title or body
+        in: query
+        name: keyword
+        type: string
+      - description: filter by author
+        in: query
+        name: author
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: FindArticle find/get articles
+      tags:
+      - articles
+swagger: "2.0"

@@ -1,0 +1,53 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Go implemented cqrs.",
+        "title": "go-cqrs-blog-api",
+        "contact": {
+            "name": "alfiankan",
+            "url": "https://github.com/alfiankan",
+            "email": "alfiankan19@gmail.com"
+        },
+        "license": {
+            "name": "Apache 2.0"
+        },
+        "version": "3.0"
+    },
+    "basePath": "/",
+    "paths": {
+        "/articles": {
+            "get": {
+                "description": "Find articles, provided query param keyword and filter by author, data ordered by created time DESC",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "articles"
+                ],
+                "summary": "FindArticle find/get articles",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "search by keyword on title or body",
+                        "name": "keyword",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "filter by author",
+                        "name": "author",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    }
+                }
+            }
+        }
+    }
+}

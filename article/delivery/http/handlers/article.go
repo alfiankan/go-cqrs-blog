@@ -9,7 +9,7 @@ import (
 	httpResponse "github.com/alfiankan/go-cqrs-blog/transport/response"
 
 	validation "github.com/go-ozzo/ozzo-validation"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type ArticleHTTPHandler struct {
@@ -53,6 +53,16 @@ func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 
 }
 
+// FindArticle godoc
+// @Summary FindArticle find/get articles
+// @Description Find articles, provided query param keyword and filter by author, data ordered by created time DESC
+// @Tags articles
+// @Accept json
+// @Produce json
+// @Param keyword query string false "search by keyword on title or body"
+// @Param author query string false "filter by author"
+// @Success 200
+// @Router /articles [get]
 func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
 
 	keyword := c.QueryParam("keyword")

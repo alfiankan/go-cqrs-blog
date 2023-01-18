@@ -9,17 +9,17 @@ import (
 	"os/signal"
 	"time"
 
-	"github.com/alfiankan/go-cqrs-blog/config"
-
 	httpHandlers "github.com/alfiankan/go-cqrs-blog/article/delivery/http/handlers"
-	middlewares "github.com/alfiankan/go-cqrs-blog/common/middleware"
+	common "github.com/alfiankan/go-cqrs-blog/common/middleware"
+	"github.com/alfiankan/go-cqrs-blog/config"
+	echoSwagger "github.com/swaggo/echo-swagger"
 
 	articleRepos "github.com/alfiankan/go-cqrs-blog/article/repositories"
 	articleUseCases "github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/labstack/gommon/log"
 )
 
@@ -60,14 +60,27 @@ func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig)
 
 }
 
+// @title go-cqrs-blog-api
+// @version 3.0
+// @description Go implemented cqrs.
+// @contact.name alfiankan
+// @contact.url https://github.com/alfiankan
+// @contact.email alfiankan19@gmail.com
+// @license.name Apache 2.0
+// @BasePath /
 func main() {
 
 	e := echo.New()
 	e.Logger.SetLevel(log.DEBUG)
-	e.Use(middlewares.SecureMiddleware())
+	e.Use(common.MiddlewaresRegistry...)
 
 	cfg := config.Load()
 	initArticleApplication(e, cfg)
+
+	// swagger
+	url := echoSwagger.URL(fmt.Sprintf("http://localhost:%s/docs/swagger.yaml", cfg.HTTPApiPort))
+	e.GET("/swagger/*", echoSwagger.EchoWrapHandler(url))
+	e.Static("/docs", "docs")
 
 	// Start server
 	go func() {
