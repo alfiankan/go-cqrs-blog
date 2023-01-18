@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"time"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 	"github.com/go-redis/redis"
 )
 
@@ -14,11 +14,11 @@ type ArticleCacheRedis struct {
 	cacheTTL    time.Duration
 }
 
-func NewArticleCacheRedis(cacheClient *redis.Client, ttl time.Duration) articleDomain.ArticleCacheRepository {
+func NewArticleCacheRedis(cacheClient *redis.Client, ttl time.Duration) domain.ArticleCacheRepository {
 	return &ArticleCacheRedis{cacheClient, ttl}
 }
 
-func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles []articleDomain.Article) (err error) {
+func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles []domain.Article) (err error) {
 
 	jsonArticles, err := json.Marshal(articles)
 	if err != nil {
@@ -29,7 +29,7 @@ func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles 
 	return
 }
 
-func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string) (articles []articleDomain.Article, err error) {
+func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string) (articles []domain.Article, err error) {
 
 	res := repo.cacheClient.WithContext(ctx).Get(term)
 	if res.Err() != nil {

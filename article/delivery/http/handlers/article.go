@@ -3,7 +3,7 @@ package http_delivery
 import (
 	"net/http"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 	"github.com/alfiankan/go-cqrs-blog/common"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 	httpResponse "github.com/alfiankan/go-cqrs-blog/transport/response"
@@ -13,10 +13,10 @@ import (
 )
 
 type ArticleHTTPHandler struct {
-	articleCommandUseCase articleDomain.ArticleCommand
+	articleCommandUseCase domain.ArticleCommand
 }
 
-func NewArticleHTTPHandler(articleCommandUseCase articleDomain.ArticleCommand) *ArticleHTTPHandler {
+func NewArticleHTTPHandler(articleCommandUseCase domain.ArticleCommand) *ArticleHTTPHandler {
 	return &ArticleHTTPHandler{articleCommandUseCase}
 }
 

@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 	"github.com/alfiankan/go-cqrs-blog/config"
 
 	"github.com/alfiankan/go-cqrs-blog/article/repositories"
@@ -18,7 +18,7 @@ import (
 func TestCreateArticleIndex(t *testing.T) {
 	t.Run("create index article to elasticsearch must be success", func(t *testing.T) {
 		faker := faker.New()
-		article := articleDomain.Article{
+		article := domain.Article{
 			ID:      time.Now().Unix(),
 			Title:   faker.Lorem().Sentence(10),
 			Author:  faker.Person().FirstName(),

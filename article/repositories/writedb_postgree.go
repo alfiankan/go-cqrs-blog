@@ -4,19 +4,19 @@ import (
 	"context"
 	"database/sql"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 )
 
 type ArticleWriterPostgree struct {
 	db *sql.DB
 }
 
-func NewArticleWriterPostgree(db *sql.DB) articleDomain.ArticleWriterDbRepository {
+func NewArticleWriterPostgree(db *sql.DB) domain.ArticleWriterDbRepository {
 	return &ArticleWriterPostgree{db}
 }
 
 // Save save article to write database (postgree)
-func (repo *ArticleWriterPostgree) Save(ctx context.Context, article articleDomain.Article) (id int64, err error) {
+func (repo *ArticleWriterPostgree) Save(ctx context.Context, article domain.Article) (id int64, err error) {
 	sql := "INSERT INTO articles (title, author, body, created) VALUES ($1, $2, $3, $4) RETURNING id"
 	err = repo.db.QueryRowContext(ctx, sql, article.Title, article.Author, article.Body, article.Created).Scan(&id)
 

@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"strings"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 
 	"github.com/alfiankan/go-cqrs-blog/common"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/response"
@@ -20,12 +20,12 @@ type ArticleElasticSearch struct {
 	es *elasticsearch.Client
 }
 
-func NewArticleElasticSearch(es *elasticsearch.Client) articleDomain.ArticleReaderDbRepository {
+func NewArticleElasticSearch(es *elasticsearch.Client) domain.ArticleReaderDbRepository {
 	return &ArticleElasticSearch{es}
 }
 
 // AddIndex request to index data to elastic search
-func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article articleDomain.Article) (err error) {
+func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article domain.Article) (err error) {
 
 	data, err := json.Marshal(article)
 	if err != nil {
@@ -46,7 +46,7 @@ func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article articleD
 }
 
 // FindAll get all articles from elastic search
-func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string) (articles []articleDomain.Article, err error) {
+func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string) (articles []domain.Article, err error) {
 
 	// setup query
 	esBoolQuery := esquery.Bool()
@@ -70,7 +70,7 @@ func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author stri
 	defer res.Body.Close()
 
 	// mapping to article domain
-	hits := transport.EsHits[*articleDomain.Article]{}
+	hits := transport.EsHits[*domain.Article]{}
 	if err = json.NewDecoder(res.Body).Decode(&hits); err != nil {
 		return
 	}

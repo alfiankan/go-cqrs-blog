@@ -4,16 +4,16 @@ import (
 	"context"
 	"time"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 )
 
 type ArticleCommand struct {
-	articleWriteRepo  articleDomain.ArticleWriterDbRepository
-	articleReaderRepo articleDomain.ArticleReaderDbRepository
+	articleWriteRepo  domain.ArticleWriterDbRepository
+	articleReaderRepo domain.ArticleReaderDbRepository
 }
 
-func NewArticleCommand(writeRepo articleDomain.ArticleWriterDbRepository, readRepo articleDomain.ArticleReaderDbRepository) articleDomain.ArticleCommand {
+func NewArticleCommand(writeRepo domain.ArticleWriterDbRepository, readRepo domain.ArticleReaderDbRepository) domain.ArticleCommand {
 	return &ArticleCommand{
 		articleWriteRepo:  writeRepo,
 		articleReaderRepo: readRepo,
@@ -23,7 +23,7 @@ func NewArticleCommand(writeRepo articleDomain.ArticleWriterDbRepository, readRe
 func (uc *ArticleCommand) Create(ctx context.Context, article transport.CreateArticle) (err error) {
 	// save to write db get insert id
 
-	newArticle := articleDomain.Article{
+	newArticle := domain.Article{
 		Title:   article.Title,
 		Author:  article.Author,
 		Body:    article.Body,

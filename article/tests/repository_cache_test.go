@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	articleDomain "github.com/alfiankan/go-cqrs-blog/article"
+	domain "github.com/alfiankan/go-cqrs-blog/article"
 	"github.com/alfiankan/go-cqrs-blog/article/repositories"
 	"github.com/alfiankan/go-cqrs-blog/config"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
@@ -20,8 +20,8 @@ func TestAddArticleQueryCache(t *testing.T) {
 	repo := repositories.NewArticleCacheRedis(redisConn, ttl)
 
 	fake := faker.New()
-	articles := []articleDomain.Article{}
-	articles = append(articles, articleDomain.Article{
+	articles := []domain.Article{}
+	articles = append(articles, domain.Article{
 		Title:  fake.Lorem().Sentence(5),
 		Author: fake.Person().FirstName(),
 		Body:   fake.Lorem().Paragraph(1),
