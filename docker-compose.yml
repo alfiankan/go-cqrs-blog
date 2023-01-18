@@ -1,9 +1,11 @@
 version: "3.9"
 
 services:
-  elasticsearch:
+  go-cqrs-elasticsearch:
     container_name: go-cqrs-elasticsearch
     restart: always
+    networks:
+      - go-cqrs
     image: docker.elastic.co/elasticsearch/elasticsearch:8.6.0
     environment:
       - ELASTIC_USERNAME=elastic
@@ -25,10 +27,12 @@ services:
       - 9200:9200
       - 9300:9300
 
-  postgreesql:
+  go-cqrs-postgree:
     container_name: go-cqrs-postgree
     image: postgres:14.1-alpine
     restart: always
+    networks:
+      - go-cqrs
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -37,15 +41,43 @@ services:
     volumes: 
       - db:/var/lib/postgresql/data
 
-  redis:
+  go-cqrs-redis:
     container_name: go-cqrs-redis
     image: redis:6.2-alpine
     restart: always
+    networks:
+      - go-cqrs
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
     volumes: 
       - cache:/data
+
+  go-cqrs-api:
+    container_name: go-cqrs-api
+    build: .
+    command: ls
+    restart: always
+    networks:
+      - go-cqrs
+    environment:
+      - PG_DATABASE_HOST=go-cqrs-postgree
+      - PG_DATABASE_USERNAME=postgres
+      - PG_DATABASE_PASSWORD=postgres
+      - PG_DATABASE_NAME=postgres
+      - PG_DATABASE_PORT=5432
+      - PG_DATABASE_SSL_MODE=disable
+      - LOG_LEVEL=debug # log_level=[debug, error]
+      - ELASTICSEARCH_ADDRESSES=http://go-cqrs-elasticsearch:9200 # es addreses, delimit with ; to use multiple node
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=elastic
+      - REDIS_HOST=go-cqrs-redis:6379
+      - REDIS_PASSWORD=eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+    ports:
+      - 3000:3000
+    volumes: 
+      - db:/var/lib/postgresql/data
+
 
 volumes:
   elasticsearch-data:
@@ -54,3 +86,7 @@ volumes:
     driver: local
   cache:
     driver: local
+
+networks:
+  go-cqrs:
+    driver: bridge

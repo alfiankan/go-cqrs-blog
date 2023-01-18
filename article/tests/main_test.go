@@ -20,8 +20,27 @@ import (
 
 func TestMain(m *testing.M) {
 
-	// set config
-	cfg := config.Load("../../.env")
+	// set override config
+	envs := map[string]string{
+		"PG_DATABASE_HOST":        "127.0.0.1",
+		"PG_DATABASE_USERNAME":    "postgres",
+		"PG_DATABASE_PASSWORD":    "postgres",
+		"PG_DATABASE_NAME":        "postgres",
+		"PG_DATABASE_PORT":        "2345",
+		"PG_DATABASE_SSL_MODE":    "disable",
+		"LOG_LEVEL":               "debug",
+		"ELASTICSEARCH_ADDRESSES": "http://127.0.0.1:2900",
+		"ELASTICSEARCH_USERNAME":  "elastic",
+		"ELASTICSEARCH_PASSWORD":  "elastic",
+		"REDIS_HOST":              "127.0.0.1:9376",
+		"REDIS_PASSWORD":          "eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81",
+		"HTTP_API_PORT":           "5000",
+	}
+
+	for key, val := range envs {
+		os.Setenv(key, val)
+	}
+	cfg := config.Load("void")
 
 	pool, err := dockertest.NewPool("")
 	if err != nil {
@@ -35,10 +54,10 @@ func TestMain(m *testing.M) {
 
 	// POSTGREESQL SETUP
 	postgreePorts := []docker.PortBinding{{HostPort: strconv.Itoa(cfg.PostgreePort)}}
-	pool.RemoveContainerByName("go-cqrs-postgree")
+	pool.RemoveContainerByName("go-cqrs-postgree-test")
 
 	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
-		Name:         "go-cqrs-postgree",
+		Name:         "go-cqrs-postgree-test",
 		Repository:   "postgres",
 		Tag:          "14.1-alpine",
 		PortBindings: map[docker.Port][]docker.PortBinding{"5432/tcp": postgreePorts},
@@ -53,10 +72,10 @@ func TestMain(m *testing.M) {
 	// ELASTICSEARCH SETUP
 	parsedEnv := strings.Split(cfg.ElasticSearchAdresses[0], ":")
 	elasticsearchPorts := []docker.PortBinding{{HostPort: parsedEnv[len(parsedEnv)-1]}}
-	pool.RemoveContainerByName("go-cqrs-elasticsearch")
+	pool.RemoveContainerByName("go-cqrs-elasticsearch-test")
 
 	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
-		Name:         "go-cqrs-elasticsearch",
+		Name:         "go-cqrs-elasticsearch-test",
 		Repository:   "docker.elastic.co/elasticsearch/elasticsearch",
 		Tag:          "8.6.0",
 		PortBindings: map[docker.Port][]docker.PortBinding{"9200/tcp": elasticsearchPorts},
@@ -73,10 +92,10 @@ func TestMain(m *testing.M) {
 	// REDIS SETUP
 	parsedEnv = strings.Split(cfg.RedisHost, ":")
 	redisPorts := []docker.PortBinding{{HostPort: parsedEnv[len(parsedEnv)-1]}}
-	pool.RemoveContainerByName("go-cqrs-redis")
+	pool.RemoveContainerByName("go-cqrs-redis-test")
 
 	if _, err = pool.RunWithOptions(&dockertest.RunOptions{
-		Name:         "go-cqrs-redis",
+		Name:         "go-cqrs-redis-test",
 		Repository:   "redis",
 		Tag:          "6.2-alpine",
 		PortBindings: map[docker.Port][]docker.PortBinding{"6379/tcp": redisPorts},
@@ -128,10 +147,8 @@ func TestMain(m *testing.M) {
 	}
 
 	code := m.Run()
-
-	pool.RemoveContainerByName("go-cqrs-redis")
-	pool.RemoveContainerByName("go-cqrs-elasticsearch")
-	pool.RemoveContainerByName("go-cqrs-postgree")
-
+	pool.RemoveContainerByName("go-cqrs-redis-test")
+	pool.RemoveContainerByName("go-cqrs-elasticsearch-test")
+	pool.RemoveContainerByName("go-cqrs-postgree-test")
 	os.Exit(code)
 }

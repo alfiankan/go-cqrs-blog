@@ -10,4 +10,12 @@ seed:
 test:
 	go test ./article/tests/... -v
 
+docs:
+	swag init -g cmd/api/main.go
+
+docker:
+	docker-compose up -d
+
+run:
+	go run ./cmd/api/main.go
 

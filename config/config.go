@@ -1,6 +1,7 @@
 package config
 
 import (
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -28,12 +29,13 @@ type ApplicationConfig struct {
 func Load(configFile ...string) ApplicationConfig {
 
 	if err := godotenv.Load(configFile...); err != nil {
-		panic(err)
+		//load from os env
+		log.Println(err.Error(), "trying to load config from os env instead")
 	}
 
 	postgreeDbPort, err := strconv.Atoi(os.Getenv("PG_DATABASE_PORT"))
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	return ApplicationConfig{
