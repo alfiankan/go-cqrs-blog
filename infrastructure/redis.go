@@ -5,6 +5,7 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// NewRedisConnection create new redis connection
 func NewRedisConnection(config config.ApplicationConfig) (client *redis.Client, err error) {
 
 	client = redis.NewClient(&redis.Options{

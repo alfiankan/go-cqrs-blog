@@ -49,6 +49,9 @@ func (handler *ArticleHTTPHandler) CreateArticle(c echo.Context) error {
 	}
 
 	if err := handler.articleCommandUseCase.Create(c.Request().Context(), reqBody); err != nil {
+
+		common.Log(common.LOG_LEVEL_ERROR, err.Error())
+
 		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
 			Message: common.InternalServerError.Error(),
 			Data:    common.EmptyResponseData,
@@ -86,6 +89,9 @@ func (handler *ArticleHTTPHandler) FindArticle(c echo.Context) error {
 
 	articles, err := handler.articleQueryUseCase.Get(c.Request().Context(), keyword, author, page)
 	if err != nil {
+
+		common.Log(common.LOG_LEVEL_ERROR, err.Error())
+
 		return c.JSON(http.StatusInternalServerError, &httpResponse.HTTPBaseResponse{
 			Message: common.InternalServerError.Error(),
 			Data:    common.EmptyResponseData,

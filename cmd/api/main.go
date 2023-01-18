@@ -10,7 +10,9 @@ import (
 	"time"
 
 	httpHandlers "github.com/alfiankan/go-cqrs-blog/article/delivery/http/handlers"
-	common "github.com/alfiankan/go-cqrs-blog/common/middleware"
+	common "github.com/alfiankan/go-cqrs-blog/common"
+	middlewares "github.com/alfiankan/go-cqrs-blog/common/middleware"
+
 	"github.com/alfiankan/go-cqrs-blog/config"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
@@ -20,30 +22,30 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 	"github.com/go-redis/redis"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 )
 
+// initInfrastructure init all infrastructure needs to run this application
 func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *elasticsearch.Client, redisConn *redis.Client) {
 	pgConn, err := infrastructure.NewPgConnection(cfg)
 	if err != nil {
-		panic(err)
+		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
 	}
 
 	esConn, err = infrastructure.NewElasticSearchClient(cfg)
 	if err != nil {
-		panic(err)
+		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
 	}
 
 	redisConn, err = infrastructure.NewRedisConnection(cfg)
 	if err != nil {
-		panic(err)
+		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
 	}
 	return
 }
 
+// initArticleApplication init app by injecting deps
 func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig) {
 
-	// infrastructure
 	pgConn, esConn, redisConn := initInfrastructure(cfg)
 
 	// repositories
@@ -70,14 +72,14 @@ func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig)
 // @BasePath /
 func main() {
 
-	e := echo.New()
-	e.Logger.SetLevel(log.DEBUG)
-	e.Use(common.MiddlewaresRegistry...)
-
 	cfg := config.Load()
+
+	e := echo.New()
+	e.Use(middlewares.MiddlewaresRegistry...)
+
 	initArticleApplication(e, cfg)
 
-	// swagger
+	// swagger api docs
 	url := echoSwagger.URL(fmt.Sprintf("http://localhost:%s/docs/swagger.yaml", cfg.HTTPApiPort))
 	e.GET("/swagger/*", echoSwagger.EchoWrapHandler(url))
 	e.Static("/docs", "docs")

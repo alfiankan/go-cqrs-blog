@@ -5,6 +5,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v7"
 )
 
+// NewElasticSearchClient create new client connection to elasticsearch
 func NewElasticSearchClient(config config.ApplicationConfig) (es *elasticsearch.Client, err error) {
 	cfg := elasticsearch.Config{
 		Addresses: config.ElasticSearchAdresses,

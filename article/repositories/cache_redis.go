@@ -9,6 +9,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
+// ArticleCacheRedis implementation from domain.ArticleCacheRepository
+// using redis as cache
 type ArticleCacheRedis struct {
 	cacheClient *redis.Client
 	cacheTTL    time.Duration
@@ -18,6 +20,7 @@ func NewArticleCacheRedis(cacheClient *redis.Client, ttl time.Duration) domain.A
 	return &ArticleCacheRedis{cacheClient, ttl}
 }
 
+// Write save (set) search/query cache to redis json format from domain.Article
 func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles []domain.Article) (err error) {
 
 	jsonArticles, err := json.Marshal(articles)
@@ -29,6 +32,7 @@ func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles 
 	return
 }
 
+// ReadByQueryTerm read query/search cahce by queryparamterm as index
 func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string) (articles []domain.Article, err error) {
 
 	res := repo.cacheClient.WithContext(ctx).Get(term)
@@ -48,9 +52,9 @@ func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string)
 
 	return
 }
+
+// InvalidateCache invalidate all cache
 func (repo *ArticleCacheRedis) InvalidateCache(ctx context.Context) (err error) {
-
 	err = repo.cacheClient.FlushAll().Err()
-
 	return
 }

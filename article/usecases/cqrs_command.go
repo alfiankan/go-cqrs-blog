@@ -8,6 +8,8 @@ import (
 	transport "github.com/alfiankan/go-cqrs-blog/transport/request"
 )
 
+// ArticleCommand implementation from domain.ArticleCommand
+// hold usecase/busineeslogic for command related operation (CQRS)
 type ArticleCommand struct {
 	articleWriteRepo  domain.ArticleWriterDbRepository
 	articleReaderRepo domain.ArticleReaderDbRepository

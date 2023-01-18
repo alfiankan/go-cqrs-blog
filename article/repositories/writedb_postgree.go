@@ -7,6 +7,8 @@ import (
 	domain "github.com/alfiankan/go-cqrs-blog/article"
 )
 
+// ArticleWriterPostgree implementation from domain.ArticleWriterDbRepository
+// using postgree as write database
 type ArticleWriterPostgree struct {
 	db *sql.DB
 }
@@ -23,6 +25,7 @@ func (repo *ArticleWriterPostgree) Save(ctx context.Context, article domain.Arti
 	return
 }
 
+// Delete delete article by id from writedb
 func (repo *ArticleWriterPostgree) Delete(ctx context.Context, id int64) (err error) {
 	sql := "DELETE FROM articles WHERE id = $1"
 	_, err = repo.db.ExecContext(ctx, sql, id)

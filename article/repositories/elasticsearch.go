@@ -16,6 +16,8 @@ import (
 	"github.com/elastic/go-elasticsearch/v7/esapi"
 )
 
+// ArticleElasticSearch implementation from domain.ArticleReaderDbRepository
+// using elasticsearch as read database
 type ArticleElasticSearch struct {
 	es *elasticsearch.Client
 }
@@ -45,7 +47,7 @@ func (repo *ArticleElasticSearch) AddIndex(ctx context.Context, article domain.A
 	return
 }
 
-// FindAll get all articles from elastic search
+// FindAll get all articles from elastic search map to []domain.Article to meet usecase
 func (repo *ArticleElasticSearch) Find(ctx context.Context, keyword, author string, page uint64) (articles []domain.Article, err error) {
 	// setup query
 	esBoolQuery := esquery.Bool()
