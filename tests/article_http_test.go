@@ -55,7 +55,7 @@ func TestHttpApiCreateArticle(t *testing.T) {
 		c := e.NewContext(req, rec)
 		c.SetPath("/articles")
 
-		fmt.Println("response json", rec.Body.String(), string(jsonReq))
+		fmt.Println("response json", rec.Body.String())
 
 		assert.NoError(t, handler.CreateArticle(c))
 		assert.Equal(t, http.StatusCreated, rec.Code)
@@ -63,7 +63,26 @@ func TestHttpApiCreateArticle(t *testing.T) {
 	})
 
 	t.Run("http validation error", func(t *testing.T) {
+		fake := faker.New()
+		jsonReq, err := json.Marshal(&transport.CreateArticle{
+			Title:  "",
+			Author: fake.Person().FirstName(),
+			Body:   fake.Lorem().Paragraph(1),
+		})
 
+		e := echo.New()
+		req, err := http.NewRequest(echo.POST, "/articles", strings.NewReader(string(jsonReq)))
+		assert.NoError(t, err)
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+		c.SetPath("/articles")
+
+		fmt.Println("response json", rec.Body.String())
+
+		assert.NoError(t, handler.CreateArticle(c))
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
 	})
 
 }
