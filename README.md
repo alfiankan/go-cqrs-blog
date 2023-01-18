@@ -2,6 +2,9 @@
 
 ## Architectural Design
 
+<img width="589" alt="Screenshot 2023-01-18 at 21 30 23" src="https://user-images.githubusercontent.com/40946917/213205778-a052af4b-13a6-4e58-a815-d3ecbce15661.png">
+
+
 The application adopts a clean architectural design with some modifications and CQRS (Command and Query Responsibility Segregation) to address search and query filtering of readable and good data by using elasticsearch. Query results will also be cached for faster request response.
 
 Domains are foldered, for example article domain :
@@ -30,9 +33,9 @@ Domains are foldered, for example article domain :
 ```
 - this application uses a simple CQRS implementation with separate read and write data stores :
     
-    1. PostgreeSQl as write and source truth
-    2. ElasticSearch as read database also as search engine
-    3. Redis as Cache
+    - PostgreeSQl as write and source truth
+    - ElasticSearch as read database also as search engine
+    - Redis as Cache
 
     <br>
 
@@ -112,6 +115,18 @@ go test ./article/tests/... -run TestHttpApiCreateArticle  -v
     ```bash
     go run ./cmd/cli/... seed
     ```
+7. run api by running command :
+
+    With make :
+    ```bash
+    make run
+    ```
+    
+    Without make :
+    ```bash
+    go run ./cmd/api/main.go
+    ```
+
 
 ## API Docs
 
@@ -144,12 +159,63 @@ Find/Get query params:
 
 ### Swagger OAS
 - you can access swagger web on `http://<host>:<port>/swagger/index.html`
+![screencapture-localhost-3000-swagger-index-html-2023-01-18-22_04_37](https://user-images.githubusercontent.com/40946917/213206702-8cb11691-9af2-4ee9-a532-deb41530b09a.png)
+
 
 ### Postman Documenter
-- you can use Postman Documenter at
+- you can use Postman Documenter by click button below :
+
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/24530299-d36635f1-b08e-4f61-a85f-8d1f18eecfd9?action=collection%2Ffork&collection-url=entityId%3D24530299-d36635f1-b08e-4f61-a85f-8d1f18eecfd9%26entityType%3Dcollection%26workspaceId%3D554dcc4f-cf17-4e8a-bdb2-bcda713286cf)
 
 ## Test and Benchmark
 
+test running 1000 request with 10 concurrent users.
 
+```bash
+hey -n 1000 -c 10 'http://localhost:3000/articles?keyword=machine&author=Adam%20Geitgey&page=1'
+```
+
+```bash
+Summary:
+  Total:        3.7906 secs
+  Slowest:      0.0696 secs
+  Fastest:      0.0194 secs
+  Average:      0.0378 secs
+  Requests/sec: 263.8096
+
+
+Response time histogram:
+  0.019 [1]     |
+  0.024 [11]    |■
+  0.029 [99]    |■■■■■■■■■■
+  0.034 [180]   |■■■■■■■■■■■■■■■■■■■
+  0.039 [378]   |■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■■
+  0.044 [188]   |■■■■■■■■■■■■■■■■■■■■
+  0.050 [78]    |■■■■■■■■
+  0.055 [44]    |■■■■■
+  0.060 [8]     |■
+  0.065 [4]     |
+  0.070 [9]     |■
+
+
+Latency distribution:
+  10% in 0.0289 secs
+  25% in 0.0336 secs
+  50% in 0.0372 secs
+  75% in 0.0410 secs
+  90% in 0.0468 secs
+  95% in 0.0510 secs
+  99% in 0.0632 secs
+
+Details (average, fastest, slowest):
+  DNS+dialup:   0.0001 secs, 0.0194 secs, 0.0696 secs
+  DNS-lookup:   0.0000 secs, 0.0000 secs, 0.0021 secs
+  req write:    0.0000 secs, 0.0000 secs, 0.0014 secs
+  resp wait:    0.0352 secs, 0.0165 secs, 0.0653 secs
+  resp read:    0.0025 secs, 0.0010 secs, 0.0102 secs
+
+Status code distribution:
+  [200] 1000 responses
+```
 
 
