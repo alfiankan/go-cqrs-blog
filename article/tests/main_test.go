@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -90,7 +91,7 @@ func TestMain(m *testing.M) {
 	}
 
 	// REDIS SETUP
-	parsedEnv = strings.Split(cfg.RedisHost, ":")
+	parsedEnv = strings.Split(cfg.RedisHost[0], ":")
 	redisPorts := []docker.PortBinding{{HostPort: parsedEnv[len(parsedEnv)-1]}}
 	pool.RemoveContainerByName("go-cqrs-redis-test")
 
@@ -108,7 +109,7 @@ func TestMain(m *testing.M) {
 	for {
 		log.Println("try to ping redis ⏳")
 		redisConn, _ := infrastructure.NewRedisConnection(cfg)
-		if err := redisConn.Ping().Err(); err == nil {
+		if err := redisConn.Ping(context.Background()).Err(); err == nil {
 			break
 		}
 		time.Sleep(2 * time.Second)

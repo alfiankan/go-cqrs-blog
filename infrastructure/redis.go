@@ -1,19 +1,21 @@
 package infrastructure
 
 import (
+	"context"
+
 	"github.com/alfiankan/go-cqrs-blog/config"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 )
 
 // NewRedisConnection create new redis connection
-func NewRedisConnection(config config.ApplicationConfig) (client *redis.Client, err error) {
+func NewRedisConnection(config config.ApplicationConfig) (client redis.UniversalClient, err error) {
 
-	client = redis.NewClient(&redis.Options{
-		Addr:     config.RedisHost,
+	client = redis.NewUniversalClient(&redis.UniversalOptions{
+		Addrs:    config.RedisHost,
 		Password: config.RedisPass,
-		DB:       0,
 	})
-	if _, err = client.Ping().Result(); err != nil {
+
+	if _, err = client.Ping(context.Background()).Result(); err != nil {
 		return
 	}
 

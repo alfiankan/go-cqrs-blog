@@ -20,7 +20,7 @@ type ApplicationConfig struct {
 	ElasticSearchAdresses []string
 	ElasticSearchUsername string
 	ElasticSearchPassword string
-	RedisHost             string
+	RedisHost             []string
 	RedisPass             string
 	HTTPApiPort           string
 }
@@ -48,7 +48,7 @@ func Load(configFile ...string) ApplicationConfig {
 		ElasticSearchAdresses: strings.Split(os.Getenv("ELASTICSEARCH_ADDRESSES"), ";"),
 		ElasticSearchUsername: os.Getenv("ELASTICSEARCH_USERNAME"),
 		ElasticSearchPassword: os.Getenv("ELASTICSEARCH_PASSWORD"),
-		RedisHost:             os.Getenv("REDIS_HOST"),
+		RedisHost:             strings.Split(os.Getenv("REDIS_HOST"), ";"),
 		RedisPass:             os.Getenv("REDIS_PASSWORD"),
 		HTTPApiPort:           os.Getenv("HTTP_API_PORT"),
 	}

@@ -20,12 +20,12 @@ import (
 	articleUseCases "github.com/alfiankan/go-cqrs-blog/article/usecases"
 	"github.com/alfiankan/go-cqrs-blog/infrastructure"
 	"github.com/elastic/go-elasticsearch/v7"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 	"github.com/labstack/echo/v4"
 )
 
 // initInfrastructure init all infrastructure needs to run this application
-func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *elasticsearch.Client, redisConn *redis.Client) {
+func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *elasticsearch.Client, redisConn redis.UniversalClient) {
 	pgConn, err := infrastructure.NewPgConnection(cfg)
 	if err != nil {
 		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())

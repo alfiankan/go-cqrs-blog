@@ -6,17 +6,17 @@ import (
 	"time"
 
 	domain "github.com/alfiankan/go-cqrs-blog/article"
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 )
 
 // ArticleCacheRedis implementation from domain.ArticleCacheRepository
 // using redis as cache
 type ArticleCacheRedis struct {
-	cacheClient *redis.Client
+	cacheClient redis.UniversalClient
 	cacheTTL    time.Duration
 }
 
-func NewArticleCacheRedis(cacheClient *redis.Client, ttl time.Duration) domain.ArticleCacheRepository {
+func NewArticleCacheRedis(cacheClient redis.UniversalClient, ttl time.Duration) domain.ArticleCacheRepository {
 	return &ArticleCacheRedis{cacheClient, ttl}
 }
 
@@ -27,7 +27,7 @@ func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles 
 	if err != nil {
 		return
 	}
-	err = repo.cacheClient.WithContext(ctx).Set(term, jsonArticles, repo.cacheTTL).Err()
+	err = repo.cacheClient.Set(ctx, term, jsonArticles, repo.cacheTTL).Err()
 
 	return
 }
@@ -35,7 +35,7 @@ func (repo *ArticleCacheRedis) Write(ctx context.Context, term string, articles 
 // ReadByQueryTerm read query/search cahce by queryparamterm as index
 func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string) (articles []domain.Article, err error) {
 
-	res := repo.cacheClient.WithContext(ctx).Get(term)
+	res := repo.cacheClient.Get(ctx, term)
 	if res.Err() != nil {
 		err = res.Err()
 		return
@@ -55,6 +55,6 @@ func (repo *ArticleCacheRedis) ReadByQueryTerm(ctx context.Context, term string)
 
 // InvalidateCache invalidate all cache
 func (repo *ArticleCacheRedis) InvalidateCache(ctx context.Context) (err error) {
-	err = repo.cacheClient.FlushAll().Err()
+	err = repo.cacheClient.FlushAllAsync(ctx).Err()
 	return
 }
