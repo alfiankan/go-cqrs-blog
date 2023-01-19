@@ -87,7 +87,7 @@ func main() {
 	// Start server
 	go func() {
 		if err := e.Start(fmt.Sprintf(":%s", cfg.HTTPApiPort)); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
+			e.Logger.Fatal("shutting down the server", err.Error())
 		}
 	}()
 
