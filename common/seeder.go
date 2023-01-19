@@ -27,7 +27,7 @@ func Seed(wd string) error {
 
 	// precheck es is alive
 	if _, err := esConn.Ping(); err != nil {
-		return errors.New("elastic search unreachable")
+		return errors.New("elastic search unreachable, try again wait elasticsearch completly running")
 	}
 
 	writeRepo := articleRepos.NewArticleWriterPostgree(pgConn)

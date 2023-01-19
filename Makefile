@@ -19,3 +19,6 @@ docker:
 run:
 	go run ./cmd/api/main.go
 
+reindex:
+	go run ./cmd/cli/... reindex
+

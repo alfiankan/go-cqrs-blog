@@ -11,6 +11,7 @@ import (
 var commands = map[string]func(wd string) error{
 	"migrate": common.Migration,
 	"seed":    common.Seed,
+	"reindex": common.Reindex,
 }
 
 func main() {
