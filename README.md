@@ -5,7 +5,7 @@
 <img width="589" alt="Screenshot 2023-01-18 at 21 30 23" src="https://user-images.githubusercontent.com/40946917/213205778-a052af4b-13a6-4e58-a815-d3ecbce15661.png">
 
 
-The application adopts a clean architectural design with some modifications and CQRS (Command and Query Responsibility Segregation) to address search and query filtering of readable and good data by using elasticsearch. Query results will also be cached for faster request response.
+This application adopts a clean architectural design with some modifications and CQRS (Command and Query Responsibility Segregation) to address search and query filtering of readable and good data by using elasticsearch. Query results will also be cached for faster request response.
 
 Domains are foldered, for example article domain :
 ```bash
@@ -69,6 +69,22 @@ go test ./article/tests/... -run TestHttpApiCreateArticle  -v
 
 ## How to run
 
+### Makefile script
+this project conatains Makefile :
+
+|command|description|
+|---|---|
+| make migrate | migrate up database to writedb |
+| make migrate-down | migrate down database from writedb |
+| make seed | seed/insert sample data to system |
+| make test | run integration test using dockertest (docker required) |
+| make swagger | rebuild swagger api docs |
+| make docker | compose up minimum dependencies (all single node) |
+| make run | run api |
+| make reindex | delete elasticsearch index and reindex from writedb |
+
+
+
 ### Using Docker Compose
 1. take a look to docker-compose.yml you can constumize or use default config.
 2. when using docker envs loaded from docker-compose.yml or docker env
@@ -126,6 +142,14 @@ go test ./article/tests/... -run TestHttpApiCreateArticle  -v
     ```bash
     go run ./cmd/api/main.go
     ```
+    
+once the application running some ports and services will be opened (according to default env and docker-compose.yml file)
+|port|description|
+|---|---|
+| 3000 | api |
+| 5432 | PostgreeSQL |
+| 6379 | Redis |
+| 9200 | elasticsearch |
 
 
 ## API Docs
