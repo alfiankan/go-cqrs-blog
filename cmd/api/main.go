@@ -26,20 +26,16 @@ import (
 
 // initInfrastructure init all infrastructure needs to run this application
 func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *elasticsearch.Client, redisConn redis.UniversalClient) {
+
 	pgConn, err := infrastructure.NewPgConnection(cfg)
-	if err != nil {
-		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
-	}
+	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
 
 	esConn, err = infrastructure.NewElasticSearchClient(cfg)
-	if err != nil {
-		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
-	}
+	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
 
 	redisConn, err = infrastructure.NewRedisConnection(cfg)
-	if err != nil {
-		common.LogExit(common.LOG_LEVEL_ERROR, err.Error())
-	}
+	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
+
 	return
 }
 
@@ -73,7 +69,6 @@ func initArticleApplication(httpServer *echo.Echo, cfg config.ApplicationConfig)
 func main() {
 
 	cfg := config.Load()
-
 	e := echo.New()
 	e.Use(middlewares.MiddlewaresRegistry...)
 

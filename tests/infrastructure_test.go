@@ -11,7 +11,7 @@ import (
 func TestPostgreeConnection(t *testing.T) {
 	t.Run("test connect to postgreesql with config", func(t *testing.T) {
 
-		cfg := config.Load("../../.env")
+		cfg := config.Load("../.env")
 		_, err := infrastructure.NewPgConnection(cfg)
 
 		assert.NoError(t, err)
@@ -21,7 +21,7 @@ func TestPostgreeConnection(t *testing.T) {
 func TestESConnection(t *testing.T) {
 	t.Run("test connection to elasticsearch with config", func(t *testing.T) {
 
-		cfg := config.Load("../../.env")
+		cfg := config.Load("../.env")
 
 		_, err := infrastructure.NewElasticSearchClient(cfg)
 
@@ -32,7 +32,7 @@ func TestESConnection(t *testing.T) {
 
 func TestRedisConnection(t *testing.T) {
 	t.Run("test redis initialize connection", func(t *testing.T) {
-		cfg := config.Load("../../.env")
+		cfg := config.Load("../.env")
 
 		_, err := infrastructure.NewRedisConnection(cfg)
 

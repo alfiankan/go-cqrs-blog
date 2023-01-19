@@ -15,7 +15,9 @@ func Log(level, message string) {
 	log.Printf("level=%s message=%s", level, message)
 }
 
-func LogExit(level, message string) {
-	log.Fatalf("level=%s message=%s", level, message)
-	os.Exit(1)
+func LogExit(err error, level, message string) {
+	if err != nil {
+		log.Fatalf("level=%s message=%s", level, message)
+		os.Exit(1)
+	}
 }
