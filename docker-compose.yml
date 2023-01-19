@@ -56,7 +56,6 @@ services:
   go-cqrs-api:
     container_name: go-cqrs-api
     build: .
-    command: ls
     restart: always
     networks:
       - go-cqrs
