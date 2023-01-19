@@ -2,7 +2,6 @@ package common
 
 import (
 	"log"
-	"os"
 )
 
 const (
@@ -15,9 +14,8 @@ func Log(level, message string) {
 	log.Printf("level=%s message=%s", level, message)
 }
 
-func LogExit(err error, level, message string) {
+func LogExit(err error, level string) {
 	if err != nil {
-		log.Fatalf("level=%s message=%s", level, message)
-		os.Exit(1)
+		log.Fatalf("level=%s message=%s", level, err.Error())
 	}
 }

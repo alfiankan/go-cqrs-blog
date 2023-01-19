@@ -28,13 +28,13 @@ import (
 func initInfrastructure(cfg config.ApplicationConfig) (pgConn *sql.DB, esConn *elasticsearch.Client, redisConn redis.UniversalClient) {
 
 	pgConn, err := infrastructure.NewPgConnection(cfg)
-	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
+	common.LogExit(err, common.LOG_LEVEL_ERROR)
 
 	esConn, err = infrastructure.NewElasticSearchClient(cfg)
-	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
+	common.LogExit(err, common.LOG_LEVEL_ERROR)
 
 	redisConn, err = infrastructure.NewRedisConnection(cfg)
-	common.LogExit(err, common.LOG_LEVEL_ERROR, err.Error())
+	common.LogExit(err, common.LOG_LEVEL_ERROR)
 
 	return
 }
